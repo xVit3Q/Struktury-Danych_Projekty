@@ -27,6 +27,10 @@ void zapiszDoPliku(const vector<int>& dane) {
     ofstream file("dane.txt");
     for (int x : dane) file << x << "\n";
 }
+void zapiszCsv(ofstream& plik, const string& struktura, int rozmiar, const string& operacja, long long ns) {
+    double ms = ns / 1'000'000.0;
+    plik << struktura << "," << rozmiar << "," << operacja << "," << ns << "," << ms << "\n";
+}
 
 vector<int> wczytajZPliku() {
     vector<int> dane;
