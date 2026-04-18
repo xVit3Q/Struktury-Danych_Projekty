@@ -54,6 +54,10 @@ void ListaJednokierunkowa::dodajNaPozycje(int value, int pozycja) {
     current->next = newNode;
     rozmiar++;
 }
+void ListaJednokierunkowa::dodajNaLosoweMiejsce(int value) {
+    int pozycja = rand() % (rozmiar + 1); // losowa pozycja od 0 do rozmiar
+    dodajNaPozycje(value, pozycja);
+}
 void ListaJednokierunkowa::usunZPoczatku() { 
     if (!head) {
         cout << "Lista jest pusta!" << endl;
@@ -108,7 +112,14 @@ void ListaJednokierunkowa::usunZPozycji(int pozycja) {
     delete temp;
     rozmiar--;
 }
-
+void ListaJednokierunkowa::usunZLosowegoMiejsca() {
+    if (rozmiar == 0) {
+        cout << "Lista jest pusta!" << endl;
+        return;
+    }
+    int pozycja = rand() % rozmiar; // losowa pozycja od 0 do rozmiar - 1
+    usunZPozycji(pozycja);
+}
 void ListaJednokierunkowa::szukaj(int value) const {
     Node* current = head;
     int index = 0;

@@ -61,6 +61,10 @@ void ListaDwukierunkowa::dodajNaPozycje(int value, int pozycja) {
     current->next = newNode; //
     rozmiar++;
 }
+void ListaDwukierunkowa::dodajNaLosoweMiejsce(int value) {
+    int pozycja = rand() % (rozmiar + 1); // losowa pozycja od 0 do rozmiar
+    dodajNaPozycje(value, pozycja);
+}
 void ListaDwukierunkowa::usunZPoczatku() {
     if (!head) {
         cout << "Lista jest pusta!" << endl;
@@ -126,7 +130,14 @@ void ListaDwukierunkowa::usunZPozycji(int pozycja) {
     delete temp;
     rozmiar--;
 }
-
+void ListaDwukierunkowa::usunZLosowegoMiejsca() {
+    if (rozmiar == 0) {
+        cout << "Lista jest pusta!" << endl;
+        return;
+    }
+    int pozycja = rand() % rozmiar; // losowa pozycja od 0 do rozmiar - 1
+    usunZPozycji(pozycja);
+}
 void ListaDwukierunkowa::szukaj(int value) const {
     Node* current = head;
     int index = 0;

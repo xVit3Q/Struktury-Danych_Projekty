@@ -17,10 +17,12 @@ public:
     ~ListaJednokierunkowa();
     void dodajNaPoczatek(int value);
     void dodajNaPozycje(int value, int pozycja);
-    void dodajNaKoniec(int value);  
+    void dodajNaKoniec(int value);
+    void dodajNaLosoweMiejsce(int value);  
     void usunZPoczatku();
     void usunZPozycji(int pozycja);
     void usunZKonca();
+    void usunZLosowegoMiejsca();
     void szukaj(int value) const;
     void wyswietl() const;
 };

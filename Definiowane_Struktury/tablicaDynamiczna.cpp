@@ -66,7 +66,10 @@ void TablicaDynamiczna::dodajNaPozycji(int indeks, int wartosc){
     dane[indeks]=wartosc;//wstawienie wartosci na dany indeks
     licznik++;
 }
-
+void TablicaDynamiczna::dodajNaLosoweMiejsce(int wartosc){
+    int indeks = rand() % (licznik + 1);//losowy indeks od 0 do licznik
+    dodajNaPozycji(indeks, wartosc);
+}
 //USUWANIE ELEMENTU
 void TablicaDynamiczna::usunZPoczatku(){
     if (licznik == 0)
@@ -99,7 +102,13 @@ void TablicaDynamiczna::usunZPozycji(int indeks){
     licznik--;
     zmniejszRozmiar();//sprawdzenie czy mozna zwolnic nieuzywane miejsce
 }
-
+void TablicaDynamiczna::usunZLosowegoMiejsca(){
+    if(licznik==0){
+        return;
+    }
+    int indeks = rand() % licznik;//losowy indeks od 0 do licznik - 1
+    usunZPozycji(indeks);
+}
 int TablicaDynamiczna::szukaj(int wartosc){
     for(int i=0;i<licznik;i++){
         if(dane[i] == wartosc){

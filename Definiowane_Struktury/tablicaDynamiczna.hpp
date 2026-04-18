@@ -15,9 +15,11 @@ public:
     void dodajNaPoczatek(int wartosc);
     void dodajNaKoniec(int wartosc);
     void dodajNaPozycji(int indeks, int wartosc);
+    void dodajNaLosoweMiejsce(int wartosc);
     void usunZPoczatku();
     void usunZKonca();
     void usunZPozycji(int indeks);
+    void usunZLosowegoMiejsca();
     int szukaj(int wartosc);
     void wyswietl();
 };
