@@ -10,38 +10,11 @@
 #include "tablicaDynamiczna.hpp"
 #include "listaJednokierunkowa.hpp"
 #include "listaDwukierunkowa.hpp"
+#include "testStructures.hpp"
+#include "pomocnicze.hpp"
+
 
 using namespace std;
-
-void logujWynik(const string& opis, long long ns) {
-    ofstream log("wyniki.txt", ios::app);
-    if (log.is_open()) {
-        double ms = ns / 1'000'000.0;
-        log << opis << " | " << ns << " ns (" << ms << " ms)" << endl;
-    }
-}
-
-int losujInt32() {
-    static std::mt19937 generator(std::random_device{}());
-    static std::uniform_int_distribution<int> distribution(
-        std::numeric_limits<int>::min(),
-        std::numeric_limits<int>::max()
-    );
-    return distribution(generator);
-}
-
-void zapiszDoPliku(const vector<int>& dane) {
-    ofstream file("dane.txt");
-    for (int x : dane) file << x << "\n";
-}
-
-vector<int> wczytajZPliku() {
-    vector<int> dane;
-    ifstream file("dane.txt");
-    int x;
-    while (file >> x) dane.push_back(x);
-    return dane;
-}
 
 int main() {
 cout.flush();
@@ -50,6 +23,13 @@ cout.flush();
         int count = 0;
         StructureType selected = showMainMenu(count);
 
+        // ============================
+        // TRYB TESTOWANIA
+        // ============================
+        if (count == -1) {
+            testStructures();
+            continue;
+        }
         // ============================
         // GENEROWANIE DANYCH
         // ============================
