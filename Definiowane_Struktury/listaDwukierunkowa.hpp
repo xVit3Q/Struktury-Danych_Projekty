@@ -5,7 +5,7 @@ class ListaDwukierunkowa {
 private:
     struct Node {
         int dane;
-        Node* next;
+        Node* next;                         
         Node* prev;
         Node(int value) : dane(value), next(nullptr), prev(nullptr) {}
     };

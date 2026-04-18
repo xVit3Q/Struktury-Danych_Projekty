@@ -1,29 +1,40 @@
 #include "listaJednokierunkowa.hpp"
 #include <iostream>
-
+using std::cout;
+using std::endl;
 ListaJednokierunkowa::ListaJednokierunkowa() : head(nullptr), tail(nullptr), rozmiar(0) {}
 
 ListaJednokierunkowa::~ListaJednokierunkowa() {
     Node* current = head; //ustwanienie aktuilnego wskaźnika jako head
-    while (current) { //pętla wykonujaca sie dopóki lista nie jest pusta
-        Node* next = current->next; 
-        delete current; 
-        current = next; 
+    while (current) { //dopóki lista nie jest pusta
+        Node* next = current->next;  //zapamietuje nastepny element
+        delete current; //usuwa aktualny element i idzie potem dalej
+        current = next; //
     }
 }
 void ListaJednokierunkowa::dodajNaPoczatek(int value) {
+    Node* newNode = new Node(value); //tworzy nowy element
+    if (!head) {
+        head = tail = newNode; //sprawdza czy lista jest pusta, jesli tak to ustawia head i tail na nowy element
+    } else {
+        newNode->next = head; //ustawia next nowego elementu na aktualny head
+        head = newNode; //aktualizuje początek listy
+    }
+    rozmiar++;
+}
+void ListaJednokierunkowa::dodajNaKoniec(int value) {
     Node* newNode = new Node(value);
     if (!head) {
-        head = tail = newNode;
+        head = tail = newNode; //sprawdza czy lista jest pusta, jesli tak to ustawia head i tail na nowy element
     } else {
-        newNode->next = head;
-        head = newNode;
+        tail->next = newNode; //ustawia next ostatniego elementu na nowy element
+        tail = newNode; //aktualizuje koniec listy
     }
     rozmiar++;
 }
 void ListaJednokierunkowa::dodajNaPozycje(int value, int pozycja) {
     if (pozycja < 0 || pozycja > rozmiar) {
-        std::cout << "Nieprawidłowa pozycja!" << std::endl;
+        cout << "Nieprawidłowa pozycja!" << endl;
         return;
     }
     if (pozycja == 0) {
@@ -37,59 +48,28 @@ void ListaJednokierunkowa::dodajNaPozycje(int value, int pozycja) {
     Node* newNode = new Node(value);
     Node* current = head;
     for (int i = 0; i < pozycja - 1; i++) {
-        current = current->next;
+        current = current->next; //przechodzi do elementu przed pozycje przed wstawianiem (i - 1)
     }
-    newNode->next = current->next;
+    newNode->next = current->next; // podpiecie nowego elementu
     current->next = newNode;
     rozmiar++;
 }
-void ListaJednokierunkowa::dodajNaKoniec(int value) {
-    Node* newNode = new Node(value);
+void ListaJednokierunkowa::usunZPoczatku() { 
     if (!head) {
-        head = tail = newNode;
-    } else {
-        tail->next = newNode;
-        tail = newNode;
-    }
-    rozmiar++;
-}
-void ListaJednokierunkowa::usunZPoczatku() {
-    if (!head) {
-        std::cout << "Lista jest pusta!" << std::endl;
+        cout << "Lista jest pusta!" << endl;
         return;
     }
-    Node* temp = head;
-    head = head->next;
-    delete temp;
+    Node* temp = head; //zapamietuje aktualny head
+    head = head->next; //przesuniecie head na nastepny element
+    delete temp; //usuwanie starego head
     rozmiar--;
     if (!head) {
-        tail = nullptr;
-    }
-}
-void ListaJednokierunkowa::usunZPozycji(int pozycja) {
-    if (pozycja < 0 || pozycja >= rozmiar) {
-        std::cout << "Nieprawidłowa pozycja!" << std::endl;
-        return;
-    }
-    if (pozycja == 0) {
-        usunZPoczatku();
-        return;
-    }
-    Node* current = head;
-    for (int i = 0; i < pozycja - 1; i++) {
-        current = current->next;
-    }
-    Node* temp = current->next;
-    current->next = temp->next;
-    delete temp;
-    rozmiar--;
-    if (current->next == nullptr) {
-        tail = current;
+        tail = nullptr; //jesli lista jest teraz pusta, ustawia tail na nullptr
     }
 }
 void ListaJednokierunkowa::usunZKonca() {
     if (!head) {
-        std::cout << "Lista jest pusta!" << std::endl;
+        cout << "Lista jest pusta!" << endl;
         return;
     }
     if (head == tail) {
@@ -98,7 +78,7 @@ void ListaJednokierunkowa::usunZKonca() {
     } else {
         Node* current = head;
         while (current->next != tail) {
-            current = current->next;
+            current = current->next; //przechodzi do przedostatniego elementu
         }
         delete tail;
         tail = current;
@@ -106,25 +86,48 @@ void ListaJednokierunkowa::usunZKonca() {
     }
     rozmiar--;
 }
+void ListaJednokierunkowa::usunZPozycji(int pozycja) {
+    if (pozycja < 0 || pozycja >= rozmiar) {
+        cout << "Nieprawidłowa pozycja!" << endl;
+        return;
+    }
+    if (pozycja == 0) {
+        usunZPoczatku();
+        return;
+    }
+    if (pozycja == rozmiar - 1) {
+        usunZKonca();
+        return;
+    }
+    Node* current = head;
+    for (int i = 0; i < pozycja - 1; i++) {
+        current = current->next; //przechodzi do elementu przed pozycja przed usuwaniem (i - 1)
+    }
+    Node* temp = current->next; //zapamietuje element do usuniecia
+    current->next = temp->next; //omija element
+    delete temp;
+    rozmiar--;
+}
+
 void ListaJednokierunkowa::szukaj(int value) const {
     Node* current = head;
     int index = 0;
     while (current) {
         if (current->dane == value) {
-            std::cout << "Znaleziono wartość " << value << " na pozycji " << index << "." << std::endl;
+            cout << "Znaleziono wartość " << value << " na pozycji " << index << "." << endl;
             return;
         }
         current = current->next;
         index++;
     }
-    std::cout << "Nie znaleziono wartości " << value << " w liście." << std::endl;
+    cout << "Nie znaleziono wartości " << value << " w liście." << endl;
 }
 void ListaJednokierunkowa::wyswietl() const {
     Node* current = head;
-    std::cout << "Lista: ";
+    cout << "Lista: ";
     while (current) {
-        std::cout << current->dane << " ";
+        cout << current->dane << " ";
         current = current->next;
     }
-    std::cout << std::endl;
+    cout << endl;
 }
