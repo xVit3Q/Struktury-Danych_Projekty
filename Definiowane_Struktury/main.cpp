@@ -11,6 +11,7 @@
 #include "listaJednokierunkowa.hpp"
 #include "listaDwukierunkowa.hpp"
 #include "testStructures.hpp"
+#include "testStructuresSr.hpp"
 #include "pomocnicze.hpp"
 
 
@@ -29,6 +30,13 @@ cout.flush();
         if (count == -1) {
             testStructures();
             continue;
+        }
+        if (count == -2) {
+            int powtórzenia;
+            cout << "Podaj liczbe powtorzen testu (domyslnie 50): ";
+            cin >> powtórzenia;
+            testStructuresSr(powtórzenia);
+            break;
         }
         // ============================
         // GENEROWANIE DANYCH
@@ -74,7 +82,7 @@ cout.flush();
         while (true) {
 
             int op = showOperationsMenu();
-            if (op == 9) break;
+            if (op == 11) break;
 
             int value, pos;
 
@@ -123,7 +131,19 @@ cout.flush();
                     end = std::chrono::high_resolution_clock::now();
                     break;
 
-                case 4: // usuń z początku
+                case 4: // dodaj na losowe miejsce
+                    cout << "Podaj wartosc: ";
+                    cin >> value;
+                    opis += "Dodano na losowe miejsce";
+
+                    start = std::chrono::high_resolution_clock::now();
+                    if (selected == Dynamiczna) tablica.dodajNaLosoweMiejsce(value);
+                    else if (selected == Jednokierunkowa) jednokierunkowa.dodajNaLosoweMiejsce(value);
+                    else dwukierunkowa.dodajNaLosoweMiejsce(value);
+                    end = std::chrono::high_resolution_clock::now();
+                    break;
+
+                case 5: // usuń z początku
                     opis += "Usunieto z poczatku";
 
                     start = std::chrono::high_resolution_clock::now();
@@ -133,7 +153,7 @@ cout.flush();
                     end = std::chrono::high_resolution_clock::now();
                     break;
 
-                case 5: // usuń z końca
+                case 6: // usuń z końca
                     opis += "Usunieto z konca";
 
                     start = std::chrono::high_resolution_clock::now();
@@ -143,7 +163,7 @@ cout.flush();
                     end = std::chrono::high_resolution_clock::now();
                     break;
 
-                case 6: // usuń z pozycji
+                case 7: // usuń z pozycji
                     cout << "Podaj pozycje: ";
                     cin >> pos;
                     opis += "Usunieto z pozycji " + to_string(pos);
@@ -154,8 +174,17 @@ cout.flush();
                     else dwukierunkowa.usunZPozycji(pos);
                     end = std::chrono::high_resolution_clock::now();
                     break;
+                case 8: // usuń z losowego miejsca
+                    opis += "Usunieto z losowego miejsca";
 
-                case 7: // wyszukaj
+                    start = std::chrono::high_resolution_clock::now();
+                    if (selected == Dynamiczna) tablica.usunZLosowegoMiejsca();
+                    else if (selected == Jednokierunkowa) jednokierunkowa.usunZLosowegoMiejsca();
+                    else dwukierunkowa.usunZLosowegoMiejsca();
+                    end = std::chrono::high_resolution_clock::now();
+                    break;
+
+                case 9: // wyszukaj
                     cout << "Podaj wartosc: ";
                     cin >> value;
                     opis += "Wyszukano wartosc";
@@ -167,7 +196,7 @@ cout.flush();
                     end = std::chrono::high_resolution_clock::now();
                     break;
 
-                case 8: // wyświetl
+                case 10: // wyświetl
                     opis += "Wyswietlono listę";
 
                     start = std::chrono::high_resolution_clock::now();
@@ -176,7 +205,6 @@ cout.flush();
                     else dwukierunkowa.wyswietl();
                     end = std::chrono::high_resolution_clock::now();
                     break;
-
                 default:
                     cout << "Nieprawidlowa opcja\n";
                     continue;

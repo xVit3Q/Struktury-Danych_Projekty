@@ -8,14 +8,19 @@ StructureType showMainMenu(int &count) {
     cout << "1. Wygeneruj dane i zapisz do pliku\n";
     cout << "2. Wczytaj dane z pliku i wybierz strukture\n";
     cout << "3. Testy\n";
-    cout << "4. Wyjscie\n";
+    cout << "4. Testy z powtorzeniami\n";
+    cout << "5. Wyjscie\n";
 
     int choice;
     cin >> choice;
 
-    if (choice == 4) exit(0);
+    if (choice == 5) exit(0);
     if (choice == 3) {
         count = -1;
+        return Dynamiczna;
+    }
+    if (choice == 4) {
+        count = -2;
         return Dynamiczna;
     }
     if (choice == 1) {
@@ -51,10 +56,9 @@ int showOperationsMenu() {
     cout << "4. Dodaj na losowe miejsce\n";
     cout << "5. Usun z poczatku\n";
     cout << "6. Usun z konca\n";
-    cout << "8. Usun z losowego miejsca\n";
     cout << "7. Usun z pozycji\n";
-    cout << "8. Wyszukaj liczbe\n";
-    cout << "9. Wyszukaj losowa liczbe\n";
+    cout << "8. Usun z losowego miejsca\n";
+    cout << "9. Wyszukaj liczbe\n";
     cout << "10. Wyswietl\n";
     cout << "11. Powrot\n";
 
