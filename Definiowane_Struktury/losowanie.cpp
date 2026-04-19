@@ -10,17 +10,13 @@ static std::mt19937& getRng() {
     return rng;
 }
 
-// Losowanie z zakresu [min, max]
 int losujPozycje(int min, int max) {
-    std::uniform_int_distribution<int> dist(min, max);
-    return dist(getRng());
+    // tworzymy distribution na stosie — kompilator to zoptymalizuje
+    // ale zakres jest zawsze poprawny
+    return std::uniform_int_distribution<int>(min, max)(getRng());
 }
 
-// Losowanie z pełnego zakresu int
 int losujInt32() {
-    static std::uniform_int_distribution<int> dist(
-        std::numeric_limits<int>::min(),
-        std::numeric_limits<int>::max()
-    );
-    return dist(getRng());
+    // tu zakres to pełny int — distribution nie jest potrzebny
+    return (int)getRng()();
 }
