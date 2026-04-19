@@ -10,6 +10,28 @@ TablicaDynamiczna::TablicaDynamiczna(){
 TablicaDynamiczna::~TablicaDynamiczna(){
     delete[] dane;//zwolnienie pamieci
 }
+TablicaDynamiczna::TablicaDynamiczna(const TablicaDynamiczna& other) {
+    licznik = other.licznik;
+    rozmiar = other.rozmiar;
+    dane = new int[rozmiar]; // alokacja nowej tablicy
+    for (int i = 0; i < licznik; i++) {
+        dane[i] = other.dane[i]; // kopiowanie danych
+    }
+}
+TablicaDynamiczna& TablicaDynamiczna::operator=(const TablicaDynamiczna& other) {
+    if (this == &other)  // sprawdzenie samoprzydzielenia
+        return *this; // zwrócenie obiektu bez zmian
+
+    delete[] dane; // zwolnienie starej tablicy
+
+    licznik = other.licznik;
+    rozmiar = other.rozmiar;
+    dane = new int[rozmiar]; // alokacja nowej tablicy
+        for (int i = 0; i < licznik; i++) {
+            dane[i] = other.dane[i]; // kopiowanie danych
+        }
+        return *this;
+    }
 
 void TablicaDynamiczna::zwiekszRozmiar(){
     if(licznik==rozmiar){

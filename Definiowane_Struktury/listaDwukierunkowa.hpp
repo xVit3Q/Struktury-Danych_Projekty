@@ -16,6 +16,8 @@ private:
 public:
     ListaDwukierunkowa();
     ~ListaDwukierunkowa();
+    ListaDwukierunkowa(const ListaDwukierunkowa& other);
+    ListaDwukierunkowa& operator=(const ListaDwukierunkowa& other);
     void dodajNaPoczatek(int value);
     void dodajNaPozycje(int value, int pozycja);
     void dodajNaKoniec(int value);

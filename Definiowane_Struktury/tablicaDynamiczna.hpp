@@ -12,6 +12,8 @@ private:
 public:
     TablicaDynamiczna();
     ~TablicaDynamiczna();
+    TablicaDynamiczna(const TablicaDynamiczna& other); // konstruktor kopiujący
+    TablicaDynamiczna& operator=(const TablicaDynamiczna& other); // operator przypisania
     void dodajNaPoczatek(int wartosc);
     void dodajNaKoniec(int wartosc);
     void dodajNaPozycji(int indeks, int wartosc);

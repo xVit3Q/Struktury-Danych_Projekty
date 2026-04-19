@@ -15,6 +15,8 @@ private:
 public:
     ListaJednokierunkowa();
     ~ListaJednokierunkowa();
+    ListaJednokierunkowa(const ListaJednokierunkowa& other); // konstruktor kopiujący
+    ListaJednokierunkowa& operator=(const ListaJednokierunkowa& other); // operator przypisania
     void dodajNaPoczatek(int value);
     void dodajNaPozycje(int value, int pozycja);
     void dodajNaKoniec(int value);

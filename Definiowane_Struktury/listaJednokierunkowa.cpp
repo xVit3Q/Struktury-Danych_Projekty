@@ -12,6 +12,27 @@ ListaJednokierunkowa::~ListaJednokierunkowa() {
         current = next; //
     }
 }
+ListaJednokierunkowa::ListaJednokierunkowa(const ListaJednokierunkowa& other) : head(nullptr), tail(nullptr), rozmiar(0) {
+    Node* current = other.head;
+    while (current) {
+        dodajNaKoniec(current->dane); //dodaje elementy z innej listy na koniec tej listy
+        current = current->next;
+    }
+}
+ListaJednokierunkowa& ListaJednokierunkowa::operator=(const ListaJednokierunkowa& other) {
+    if (this == &other) {
+        return *this; // obsługa przypisania do samego siebie
+    }
+    // Najpierw czysci obecną listę, aby uniknąć wycieków pamięci
+    while(head != nullptr) usunZPoczatku(); // usuwanie elementów z obecnej listy
+    Node* current = other.head; // ustawienie aktualnego wskaźnika jako head
+    while (current != nullptr) {
+        dodajNaKoniec(current->dane); // dodajemy elementy z innej listy na koniec tej listy
+        current = current->next;
+    }
+    
+    return *this; // zwracamy referencję do tego obiektu
+}
 void ListaJednokierunkowa::dodajNaPoczatek(int value) {
     Node* newNode = new Node(value); //tworzy nowy element
     if (!head) {
