@@ -1,5 +1,6 @@
 #include "listaDwukierunkowa.hpp"
 #include <iostream>
+#include "losowanie.hpp"
 using std::cout;
 using std::endl;
 ListaDwukierunkowa::ListaDwukierunkowa() : head(nullptr), tail(nullptr), rozmiar(0) {}
@@ -93,7 +94,7 @@ void ListaDwukierunkowa::dodajNaPozycje(int value, int pozycja) {
 
 }
 void ListaDwukierunkowa::dodajNaLosoweMiejsce(int value) {
-    int pozycja = rand() % (rozmiar + 1); // losowa pozycja od 0 do rozmiar
+    int pozycja = losujPozycje(0, rozmiar);
     dodajNaPozycje(value, pozycja);
 }
 void ListaDwukierunkowa::usunZPoczatku() {
@@ -166,7 +167,7 @@ void ListaDwukierunkowa::usunZLosowegoMiejsca() {
         cout << "Lista jest pusta!" << endl;
         return;
     }
-    int pozycja = rand() % rozmiar; // losowa pozycja od 0 do rozmiar - 1
+    int pozycja = losujPozycje(0, rozmiar - 1);
     usunZPozycji(pozycja);
 }
 int ListaDwukierunkowa::szukaj(int value) const {

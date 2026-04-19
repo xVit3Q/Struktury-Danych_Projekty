@@ -1,5 +1,6 @@
 #include "listaJednokierunkowa.hpp"
 #include <iostream>
+#include "losowanie.hpp"
 using std::cout;
 using std::endl;
 ListaJednokierunkowa::ListaJednokierunkowa() : head(nullptr), tail(nullptr), rozmiar(0) {}
@@ -81,7 +82,7 @@ void ListaJednokierunkowa::dodajNaPozycje(int value, int pozycja) {
     rozmiar++;
 }
 void ListaJednokierunkowa::dodajNaLosoweMiejsce(int value) {
-    int pozycja = rand() % (rozmiar + 1); // losowa pozycja od 0 do rozmiar
+    int pozycja = losujPozycje(0, rozmiar);
     dodajNaPozycje(value, pozycja);
 }
 void ListaJednokierunkowa::usunZPoczatku() { 
@@ -143,7 +144,7 @@ void ListaJednokierunkowa::usunZLosowegoMiejsca() {
         cout << "Lista jest pusta!" << endl;
         return;
     }
-    int pozycja = rand() % rozmiar; // losowa pozycja od 0 do rozmiar - 1
+    int pozycja = losujPozycje(0, rozmiar - 1);
     usunZPozycji(pozycja);
 }
 int ListaJednokierunkowa::szukaj(int value) const {

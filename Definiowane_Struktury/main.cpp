@@ -194,6 +194,12 @@ cout.flush();
                     else if (selected == Jednokierunkowa) jednokierunkowa.szukaj(value);
                     else dwukierunkowa.szukaj(value);
                     end = std::chrono::high_resolution_clock::now();
+                    if (pos == -1){
+                        cout << "Nie znaleziono wartosci " << value << " w strukturze\n";
+                    }
+                    else {
+                        cout << "Znaleziono wartosc " << value << " na pozycji " << pos << "\n";
+                    }
                     break;
 
                 case 10: // wyświetl

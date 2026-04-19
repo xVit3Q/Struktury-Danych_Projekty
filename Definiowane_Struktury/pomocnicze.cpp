@@ -1,7 +1,6 @@
 #include "pomocnicze.hpp"
 #include <fstream>
-#include <random>
-#include <limits>
+#include "losowanie.hpp"
 #include <chrono>
 
 using namespace std;
@@ -12,15 +11,6 @@ void logujWynik(const string& opis, long long ns) {
         double ms = ns / 1'000'000.0;
         log << opis << " | " << ns << " ns (" << ms << " ms)" << endl;
     }
-}
-
-int losujInt32() {
-    static std::mt19937 generator(std::random_device{}());
-    static std::uniform_int_distribution<int> distribution(
-        std::numeric_limits<int>::min(),
-        std::numeric_limits<int>::max()
-    );
-    return distribution(generator);
 }
 
 void zapiszDoPliku(const vector<int>& dane) {

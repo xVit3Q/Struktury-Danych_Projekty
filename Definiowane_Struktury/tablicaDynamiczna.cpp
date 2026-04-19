@@ -1,5 +1,6 @@
 #include "tablicaDynamiczna.hpp"
 #include <iostream>
+#include "losowanie.hpp"
 
 TablicaDynamiczna::TablicaDynamiczna(){
     licznik = 0;
@@ -90,7 +91,7 @@ void TablicaDynamiczna::dodajNaPozycji(int indeks, int wartosc){
     licznik++;
 }
 void TablicaDynamiczna::dodajNaLosoweMiejsce(int wartosc){
-    int indeks = rand() % (licznik + 1);//losowy indeks od 0 do licznik
+    int indeks = losujPozycje(0, licznik);
     dodajNaPozycji(indeks, wartosc);
 }
 //USUWANIE ELEMENTU
@@ -129,7 +130,7 @@ void TablicaDynamiczna::usunZLosowegoMiejsca(){
     if(licznik==0){
         return;
     }
-    int indeks = rand() % licznik;//losowy indeks od 0 do licznik - 1
+    int indeks = losujPozycje(0, licznik - 1); // losowy indeks od 0 do licznik - 1
     usunZPozycji(indeks);
 }
 int TablicaDynamiczna::szukaj(int wartosc){
