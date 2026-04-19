@@ -25,6 +25,11 @@ ListaDwukierunkowa& ListaDwukierunkowa::operator=(const ListaDwukierunkowa& othe
     }
     // Najpierw czysci obecną listę, aby uniknąć wycieków pamięci
     while(head != nullptr) usunZPoczatku(); // usuwanie elementów z obecnej listy
+
+    head = nullptr;
+    tail = nullptr;
+    rozmiar = 0;
+
     Node* current = other.head; // ustawienie aktualnego wskaźnika jako head
     while (current != nullptr) {
         dodajNaKoniec(current->dane); // dodajemy elementy z innej listy na koniec tej listy
@@ -142,7 +147,7 @@ void ListaDwukierunkowa::usunZPozycji(int pozycja) {
         }
     } else {
         current = tail;
-        for(int i = rozmiar - 1; i < pozycja; i--)
+        for(int i = rozmiar - 1; i > pozycja; i--)
         {
             current = current->prev;
         }
@@ -164,28 +169,25 @@ void ListaDwukierunkowa::usunZLosowegoMiejsca() {
     int pozycja = rand() % rozmiar; // losowa pozycja od 0 do rozmiar - 1
     usunZPozycji(pozycja);
 }
-void ListaDwukierunkowa::szukaj(int value) const {
+int ListaDwukierunkowa::szukaj(int value) const {
     Node* left = head;
     Node* right = tail;
     int leftIndex = 0;
     int rightIndex = rozmiar - 1;
 
-    while(left != nullptr && right != nullptr && leftIndex <= rightIndex) {
+    while (left != nullptr && right != nullptr && leftIndex <= rightIndex) {
         if (left->dane == value) {
-            cout << "Znaleziono wartość " << value << " na pozycji " << leftIndex << "." << endl;
-            return;
+            return leftIndex; // znaleziono wartość po lewej stronie
         }
         if (right->dane == value) {
-            cout << "Znaleziono wartość " << value << " na pozycji " << rightIndex << "." << endl;
-            return;
+            return rightIndex; // znaleziono wartość po prawej stronie
         }
-        left = left->next; // przesunięcie wskaźnika z lewej strony
-        right = right->prev; // przesunięcie wskaźnika z prawej strony
+        left = left->next; // przesunięcie w prawo
+        right = right->prev; // przesunięcie w lewo
         leftIndex++;
         rightIndex--;
     }
-    cout << "Nie znaleziono wartości " << value << " w liście." << endl;
-
+    return -1; // zwraca -1 jeśli nie znaleziono elementu
 }
 void ListaDwukierunkowa::wyswietl() const {
     Node* current = head;

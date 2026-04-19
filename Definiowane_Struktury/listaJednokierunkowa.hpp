@@ -25,7 +25,7 @@ public:
     void usunZPozycji(int pozycja);
     void usunZKonca();
     void usunZLosowegoMiejsca();
-    void szukaj(int value) const;
+    int szukaj(int value) const;
     void wyswietl() const;
 };
 

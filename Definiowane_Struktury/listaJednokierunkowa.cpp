@@ -25,6 +25,11 @@ ListaJednokierunkowa& ListaJednokierunkowa::operator=(const ListaJednokierunkowa
     }
     // Najpierw czysci obecną listę, aby uniknąć wycieków pamięci
     while(head != nullptr) usunZPoczatku(); // usuwanie elementów z obecnej listy
+
+    head = nullptr;
+    tail = nullptr;
+    rozmiar = 0;
+
     Node* current = other.head; // ustawienie aktualnego wskaźnika jako head
     while (current != nullptr) {
         dodajNaKoniec(current->dane); // dodajemy elementy z innej listy na koniec tej listy
@@ -141,18 +146,15 @@ void ListaJednokierunkowa::usunZLosowegoMiejsca() {
     int pozycja = rand() % rozmiar; // losowa pozycja od 0 do rozmiar - 1
     usunZPozycji(pozycja);
 }
-void ListaJednokierunkowa::szukaj(int value) const {
+int ListaJednokierunkowa::szukaj(int value) const {
     Node* current = head;
     int index = 0;
-    while (current) {
-        if (current->dane == value) {
-            cout << "Znaleziono wartość " << value << " na pozycji " << index << "." << endl;
-            return;
-        }
+    while(current) {
+        if(current->dane == value) return index;
         current = current->next;
         index++;
     }
-    cout << "Nie znaleziono wartości " << value << " w liście." << endl;
+    return -1; // zwraca -1 jeśli nie znaleziono elementu
 }
 void ListaJednokierunkowa::wyswietl() const {
     Node* current = head;

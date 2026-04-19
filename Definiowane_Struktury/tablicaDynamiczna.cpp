@@ -32,34 +32,35 @@ TablicaDynamiczna& TablicaDynamiczna::operator=(const TablicaDynamiczna& other) 
         }
         return *this;
     }
-
 void TablicaDynamiczna::zwiekszRozmiar(){
-    if(licznik==rozmiar){
-        rozmiar*=2;//zwiekszenie rozmiaru dwukrotnie
-        int* noweDane = new int[rozmiar];//tworzenie nowej tablicy
-
-        for(int i=0;i<licznik;i++)
-        {
-            noweDane[i]=dane[i];//przerzucenie danych do nowej tablicy
+    if(licznik >= rozmiar) {
+        rozmiar *= 2;//zwiekszenie rozmiaru o połowę
+        int* noweDane = new int[rozmiar];//nowa tablica
+        for(int i=0; i<licznik; i++){
+            noweDane[i] = dane[i];//przerzucenie danych do nowej tablicy
         }
         delete[] dane;//usuniecie starej tablicy
-        dane=noweDane;//podpiecie nowego wskaznika
+        dane = noweDane;//podpiecie nowego wskaznika
     }
-}
 
-void TablicaDynamiczna::zmniejszRozmiar(){
     
-    if(licznik > 0 && licznik <= rozmiar / 4){//jesli zapełnienie spadnie do 1/4 rozmiaru
-        rozmiar /= 2; //zmniejszenie rozmiaru o połowę
-        int* noweDane = new int[rozmiar]; //nowa tablica
-
-        for(int i=0; i<licznik; i++){
-            noweDane[i] = dane[i]; //przerzucenie danych do nowej tablicy
-        }
-        delete[] dane; //usuniecie starej tablicy
-        dane = noweDane; //podpiecie nowego wskaznika
-    }
 }
+void TablicaDynamiczna::zmniejszRozmiar(){
+    int staryRozmiar = rozmiar;
+    while(licznik > 0 && licznik <= rozmiar / 4 && rozmiar > 1){
+        rozmiar /= 2;//zmniejszenie rozmiaru o połowę
+        }
+        //realok
+        if(rozmiar != staryRozmiar){ //realok tylko jesli rozmiar sie zmienil
+        int* noweDane = new int[rozmiar];//nowa tablica
+        for(int i=0; i<licznik; i++){
+            noweDane[i] = dane[i];//przerzucenie danych do nowej tablicy
+        }
+        delete[] dane;//usuniecie starej tablicy
+        dane = noweDane;//podpiecie nowego wskaznika
+        }
+    }
+
 
 //------DODAWANIE ELEMENTU-------
 void TablicaDynamiczna::dodajNaPoczatek(int wartosc){
