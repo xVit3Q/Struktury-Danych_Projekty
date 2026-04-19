@@ -56,31 +56,36 @@ void ListaDwukierunkowa::dodajNaKoniec(int value) {
     rozmiar++;
 }
 void ListaDwukierunkowa::dodajNaPozycje(int value, int pozycja) {
-    // na początku sprawdzamy czy pozycja jest poprawna lub czy pozycja jest równa 0 lub równa rozmiarowi listy, jeśli tak to wywołujemy odpowiednie funkcje
-    if (pozycja < 0 || pozycja > rozmiar) {
+    if(pozycja < 0 || pozycja > rozmiar) {
         cout << "Nieprawidłowa pozycja!" << endl;
         return;
     }
-    if (pozycja == 0) { 
-        dodajNaPoczatek(value);
-        return;
+    if (pozycja ==0) { dodajNaPoczatek(value); return; }
+    if (pozycja == rozmiar) { dodajNaKoniec(value); return; }
+
+    Node* current;
+    if(pozycja <= rozmiar /2){
+        current = head;
+        for(int i = 0; i < pozycja - 1; i++)
+        {
+            current = current->next; // przechodzi do elementu przed pozycja przed wstawianiem (i - 1)
+        }
     }
-    if (pozycja == rozmiar) {
-        dodajNaKoniec(value);
-        return;
+    else {
+        current = tail;
+        for(int i = rozmiar - 1; i > pozycja - 1; i--)
+        {
+            current = current->prev; // przechodzi do elementu przed pozycja przed wstawianiem (i - 1) od końca listy
+        }
     }
-    Node* newNode = new Node(value); // nowy element
-    Node* current = head;
-    for (int i = 0; i < pozycja - 1; i++) {
-        current = current->next; // przesuwanie się do elementu przed pozycją docelową (i - 1)
-    }
-    newNode->next = current->next; // ustawienie wskaźnika next 
-    newNode->prev = current; // i prev nowego elementu
-    if (current->next) {
-        current->next->prev = newNode; 
-    }
-    current->next = newNode; //
+    //wstawianie nowego elementu przed current
+    Node* newNode = new Node(value); // tworzy nowy element
+    newNode->prev = current->prev; //nowy wskazuje wstecz na poprzednika current
+    newNode->next = current; //nowy wskazuje na current
+    current->prev->next = newNode; //poprzednik current wskazuje na nowy element
+    current->prev = newNode; //current wskazuje wstecz na nowy element
     rozmiar++;
+
 }
 void ListaDwukierunkowa::dodajNaLosoweMiejsce(int value) {
     int pozycja = rand() % (rozmiar + 1); // losowa pozycja od 0 do rozmiar
@@ -107,49 +112,49 @@ void ListaDwukierunkowa::usunZKonca() {
         cout << "Lista jest pusta!" << endl;
         return;
     }
-    if (head == tail) { //jeśli jest tylko jeden element w liście
+    if (head == tail) { // jeśli jest tylko jeden element w liście
         delete head;
         head = tail = nullptr;
     } else {
-        Node* current = head;
-        while (current->next != tail) {
-            current = current->next; //przesuwanie się do przedostatniego elementu
-        }
-        delete tail;
-        tail = current;
-        tail->next = nullptr;
+        Node* temp = tail; // zapisanie wskaźnika do usunięcia starego tail
+        tail = tail->prev; // przesunięcie tail na poprzedni element ta poprawka z O(n) na O(1)
+        tail->next = nullptr; // odcięcie wskaźnika next od nowego tail
+        delete temp; // usunięcie starego tail
     }
     rozmiar--;
 }
+
 void ListaDwukierunkowa::usunZPozycji(int pozycja) {
     if (pozycja < 0 || pozycja >= rozmiar) {
         cout << "Nieprawidłowa pozycja!" << endl;
         return;
     }
+    if (pozycja == 0) { usunZPoczatku(); return; }
+    if (pozycja == rozmiar - 1) { usunZKonca(); return; }
 
-    if (pozycja == 0) {
-        usunZPoczatku();
-        return;
+    Node* current;
+
+    if(pozycja <= rozmiar /2) {
+        current = head;
+        for(int i = 0; i < pozycja; i++)
+        {
+            current = current->next;
+        }
+    } else {
+        current = tail;
+        for(int i = rozmiar - 1; i < pozycja; i--)
+        {
+            current = current->prev;
+        }
     }
+    current->prev->next = current->next; // poprzedni element omija current
+    current->next->prev = current->prev; // następny element omija current
 
-    if (pozycja == rozmiar - 1) {
-        usunZKonca();
-        return;
-    }
-
-    Node* current = head;
-
-    for (int i = 0; i < pozycja - 1; i++) {
-        current = current->next;
-    }
-
-    Node* temp = current->next; // zapisanie wskaźnika do usunięcia
-
-    current->next = temp->next; // przesunięcie wskaźnika next poprzedniego elementu na element po usuwanym
-    temp->next->prev = current;
-
-    delete temp;
+    current->next = nullptr; // odcięcie wskaźników current
+    current->prev = nullptr;
+    delete current; // usunięcie current
     rozmiar--;
+
 }
 void ListaDwukierunkowa::usunZLosowegoMiejsca() {
     if (rozmiar == 0) {
@@ -160,17 +165,27 @@ void ListaDwukierunkowa::usunZLosowegoMiejsca() {
     usunZPozycji(pozycja);
 }
 void ListaDwukierunkowa::szukaj(int value) const {
-    Node* current = head;
-    int index = 0;
-    while (current) {
-        if (current->dane == value) {
-            cout << "Znaleziono wartość " << value << " na pozycji " << index << "." << endl;
+    Node* left = head;
+    Node* right = tail;
+    int leftIndex = 0;
+    int rightIndex = rozmiar - 1;
+
+    while(left != nullptr && right != nullptr && leftIndex <= rightIndex) {
+        if (left->dane == value) {
+            cout << "Znaleziono wartość " << value << " na pozycji " << leftIndex << "." << endl;
             return;
         }
-        current = current->next;
-        index++;
+        if (right->dane == value) {
+            cout << "Znaleziono wartość " << value << " na pozycji " << rightIndex << "." << endl;
+            return;
+        }
+        left = left->next; // przesunięcie wskaźnika z lewej strony
+        right = right->prev; // przesunięcie wskaźnika z prawej strony
+        leftIndex++;
+        rightIndex--;
     }
     cout << "Nie znaleziono wartości " << value << " w liście." << endl;
+
 }
 void ListaDwukierunkowa::wyswietl() const {
     Node* current = head;
