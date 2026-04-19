@@ -36,109 +36,96 @@ void testStructuresSr(int powtórzenia) {
     
 for (int rozmiar : rozmiary) {
     wyniki.reset();
-    for (int rep = 1; rep <= powtórzenia; rep++) {
 
+    // ← PRZENIEŚ BUDOWANIE BAZY POZA PĘTLĘ REP
+    vector<int> dane = generujDane(rozmiar);
+
+    TablicaDynamiczna bazaTablica;
+    for (int x : dane) bazaTablica.dodajNaKoniec(x);
+
+    ListaJednokierunkowa bazaJedno;
+    for (int x : dane) bazaJedno.dodajNaKoniec(x);
+
+    ListaDwukierunkowa bazaDwu;
+    for (int x : dane) bazaDwu.dodajNaKoniec(x);
+
+    for (int rep = 1; rep <= powtórzenia; rep++) {
         cout << "Powtorzenie " << rep << "/" << powtórzenia
              << " dla rozmiaru " << rozmiar << endl;
 
-        // 🔥 GENERUJEMY DANE TYLKO RAZ NA POWTÓRZENIE
-        vector<int> dane = generujDane(rozmiar);
-
-        // ============================================
         // ============ TABLICA DYNAMICZNA ============
-        // ============================================
-
         {
-            TablicaDynamiczna bazaowa; 
-            for (int x : dane) bazaowa.dodajNaKoniec(x);
             auto test = [&](auto funcja) {
-
-                TablicaDynamiczna lokalna = bazaowa; 
+                TablicaDynamiczna lokalna = bazaTablica; // kopiuj gotową
                 auto start = chrono::high_resolution_clock::now();
                 funcja(lokalna);
                 auto end = chrono::high_resolution_clock::now();
                 return chrono::duration_cast<chrono::nanoseconds>(end - start).count();
             };
 
-            wyniki.tablica.dodP += test([&](TablicaDynamiczna& dyna) { dyna.dodajNaPoczatek(999); });
-            wyniki.tablica.dodK += test([&](TablicaDynamiczna& dyna) { dyna.dodajNaKoniec(888); });
-            wyniki.tablica.dodPos += test([&](TablicaDynamiczna& dyna) { dyna.dodajNaPozycji(777, rozmiar/2); });
-            wyniki.tablica.dodLos += test([&](TablicaDynamiczna& dyna) { dyna.dodajNaLosoweMiejsce(666); });
-
-            wyniki.tablica.usP += test([&](TablicaDynamiczna& dyna) { dyna.usunZPoczatku(); });
-            wyniki.tablica.usK += test([&](TablicaDynamiczna& dyna) { dyna.usunZKonca(); });
-            wyniki.tablica.usPos += test([&](TablicaDynamiczna& dyna) { dyna.usunZPozycji(rozmiar/2); });
-            wyniki.tablica.usLos += test([&](TablicaDynamiczna& dyna) { dyna.usunZLosowegoMiejsca(); });
-
-            wyniki.tablica.szuk0 += test([&](TablicaDynamiczna& dyna) { dyna.szukaj(dane[0]); });
-            wyniki.tablica.szuk25 += test([&](TablicaDynamiczna& dyna) { dyna.szukaj(dane[rozmiar/4]); });
-            wyniki.tablica.szuk50 += test([&](TablicaDynamiczna& dyna) { dyna.szukaj(dane[rozmiar/2]); });
-            wyniki.tablica.szuk75 += test([&](TablicaDynamiczna& dyna) { dyna.szukaj(dane[3*rozmiar/4]); });
-            wyniki.tablica.szuk100 += test([&](TablicaDynamiczna& dyna) { dyna.szukaj(dane[rozmiar-1]); });
+            wyniki.tablica.dodP   += test([&](TablicaDynamiczna& d) { d.dodajNaPoczatek(999); });
+            wyniki.tablica.dodK   += test([&](TablicaDynamiczna& d) { d.dodajNaKoniec(888); });
+            wyniki.tablica.dodPos += test([&](TablicaDynamiczna& d) { d.dodajNaPozycji(777, rozmiar/2); });
+            wyniki.tablica.dodLos += test([&](TablicaDynamiczna& d) { d.dodajNaLosoweMiejsce(666); });
+            wyniki.tablica.usP    += test([&](TablicaDynamiczna& d) { d.usunZPoczatku(); });
+            wyniki.tablica.usK    += test([&](TablicaDynamiczna& d) { d.usunZKonca(); });
+            wyniki.tablica.usPos  += test([&](TablicaDynamiczna& d) { d.usunZPozycji(rozmiar/2); });
+            wyniki.tablica.usLos  += test([&](TablicaDynamiczna& d) { d.usunZLosowegoMiejsca(); });
+            wyniki.tablica.szuk0   += test([&](TablicaDynamiczna& d) { d.szukaj(dane[0]); });
+            wyniki.tablica.szuk25  += test([&](TablicaDynamiczna& d) { d.szukaj(dane[rozmiar/4]); });
+            wyniki.tablica.szuk50  += test([&](TablicaDynamiczna& d) { d.szukaj(dane[rozmiar/2]); });
+            wyniki.tablica.szuk75  += test([&](TablicaDynamiczna& d) { d.szukaj(dane[3*rozmiar/4]); });
+            wyniki.tablica.szuk100 += test([&](TablicaDynamiczna& d) { d.szukaj(dane[rozmiar-1]); });
         }
 
-        // ============================================
         // ========== LISTA JEDNOKIERUNKOWA ============
-        // ============================================
-
         {
-            ListaJednokierunkowa bazaowa;
-            for (int x : dane) bazaowa.dodajNaKoniec(x);
             auto test = [&](auto funcja) {
-                ListaJednokierunkowa lokalna = bazaowa;
+                ListaJednokierunkowa lokalna = bazaJedno;
                 auto start = chrono::high_resolution_clock::now();
                 funcja(lokalna);
                 auto end = chrono::high_resolution_clock::now();
                 return chrono::duration_cast<chrono::nanoseconds>(end - start).count();
             };
-            
-            wyniki.jednokierunkowa.dodP += test([&](ListaJednokierunkowa& jedno) { jedno.dodajNaPoczatek(999); });
-            wyniki.jednokierunkowa.dodK += test([&](ListaJednokierunkowa& jedno) { jedno.dodajNaKoniec(888); });
-            wyniki.jednokierunkowa.dodPos += test([&](ListaJednokierunkowa& jedno) { jedno.dodajNaPozycje(777, rozmiar/2); });
-            wyniki.jednokierunkowa.dodLos += test([&](ListaJednokierunkowa& jedno) { jedno.dodajNaLosoweMiejsce(666); });
 
-            wyniki.jednokierunkowa.usP += test([&](ListaJednokierunkowa& jedno) { jedno.usunZPoczatku(); });
-            wyniki.jednokierunkowa.usK += test([&](ListaJednokierunkowa& jedno) { jedno.usunZKonca(); });
-            wyniki.jednokierunkowa.usPos += test([&](ListaJednokierunkowa& jedno) { jedno.usunZPozycji(rozmiar/2); });
-            wyniki.jednokierunkowa.usLos += test([&](ListaJednokierunkowa& jedno) { jedno.usunZLosowegoMiejsca(); });
-
-            wyniki.jednokierunkowa.szuk0 += test([&](ListaJednokierunkowa& jedno) { jedno.szukaj(dane[0]); });
-            wyniki.jednokierunkowa.szuk25 += test([&](ListaJednokierunkowa& jedno) { jedno.szukaj(dane[rozmiar/4]); });
-            wyniki.jednokierunkowa.szuk50 += test([&](ListaJednokierunkowa& jedno) { jedno.szukaj(dane[rozmiar/2]); });
-            wyniki.jednokierunkowa.szuk75 += test([&](ListaJednokierunkowa& jedno) { jedno.szukaj(dane[3*rozmiar/4]); });
-            wyniki.jednokierunkowa.szuk100 += test([&](ListaJednokierunkowa& jedno) { jedno.szukaj(dane[rozmiar-1]); });
+            wyniki.jednokierunkowa.dodP   += test([&](ListaJednokierunkowa& j) { j.dodajNaPoczatek(999); });
+            wyniki.jednokierunkowa.dodK   += test([&](ListaJednokierunkowa& j) { j.dodajNaKoniec(888); });
+            wyniki.jednokierunkowa.dodPos += test([&](ListaJednokierunkowa& j) { j.dodajNaPozycje(777, rozmiar/2); });
+            wyniki.jednokierunkowa.dodLos += test([&](ListaJednokierunkowa& j) { j.dodajNaLosoweMiejsce(666); });
+            wyniki.jednokierunkowa.usP    += test([&](ListaJednokierunkowa& j) { j.usunZPoczatku(); });
+            wyniki.jednokierunkowa.usK    += test([&](ListaJednokierunkowa& j) { j.usunZKonca(); });
+            wyniki.jednokierunkowa.usPos  += test([&](ListaJednokierunkowa& j) { j.usunZPozycji(rozmiar/2); });
+            wyniki.jednokierunkowa.usLos  += test([&](ListaJednokierunkowa& j) { j.usunZLosowegoMiejsca(); });
+            wyniki.jednokierunkowa.szuk0   += test([&](ListaJednokierunkowa& j) { j.szukaj(dane[0]); });
+            wyniki.jednokierunkowa.szuk25  += test([&](ListaJednokierunkowa& j) { j.szukaj(dane[rozmiar/4]); });
+            wyniki.jednokierunkowa.szuk50  += test([&](ListaJednokierunkowa& j) { j.szukaj(dane[rozmiar/2]); });
+            wyniki.jednokierunkowa.szuk75  += test([&](ListaJednokierunkowa& j) { j.szukaj(dane[3*rozmiar/4]); });
+            wyniki.jednokierunkowa.szuk100 += test([&](ListaJednokierunkowa& j) { j.szukaj(dane[rozmiar-1]); });
         }
 
-        // ============================================
         // ========== LISTA DWUKIERUNKOWA ==============
-        // ============================================
-
         {
-            ListaDwukierunkowa bazaowa;
-            for (int x : dane) bazaowa.dodajNaKoniec(x);
             auto test = [&](auto funcja) {
-                ListaDwukierunkowa lokalna = bazaowa;
+                ListaDwukierunkowa lokalna = bazaDwu;
                 auto start = chrono::high_resolution_clock::now();
                 funcja(lokalna);
                 auto end = chrono::high_resolution_clock::now();
                 return chrono::duration_cast<chrono::nanoseconds>(end - start).count();
             };
 
-            wyniki.dwukierunkowa.dodP += test([&](ListaDwukierunkowa& Dwu) { Dwu.dodajNaPoczatek(999); });
-            wyniki.dwukierunkowa.dodK += test([&](ListaDwukierunkowa& Dwu) { Dwu.dodajNaKoniec(888); });
-            wyniki.dwukierunkowa.dodPos += test([&](ListaDwukierunkowa& Dwu) { Dwu.dodajNaPozycje(777, rozmiar/2); });
-            wyniki.dwukierunkowa.dodLos += test([&](ListaDwukierunkowa& Dwu) { Dwu.dodajNaLosoweMiejsce(666); });
-
-            wyniki.dwukierunkowa.usP += test([&](ListaDwukierunkowa& Dwu) { Dwu.usunZPoczatku(); });
-            wyniki.dwukierunkowa.usK += test([&](ListaDwukierunkowa& Dwu) { Dwu.usunZKonca(); });
-            wyniki.dwukierunkowa.usPos += test([&](ListaDwukierunkowa& Dwu) { Dwu.usunZPozycji(rozmiar/2); });
-            wyniki.dwukierunkowa.usLos += test([&](ListaDwukierunkowa& Dwu) { Dwu.usunZLosowegoMiejsca(); });
-
-            wyniki.dwukierunkowa.szuk0 += test([&](ListaDwukierunkowa& Dwu) { Dwu.szukaj(dane[0]); });
-            wyniki.dwukierunkowa.szuk25 += test([&](ListaDwukierunkowa& Dwu) { Dwu.szukaj(dane[rozmiar/4]); });
-            wyniki.dwukierunkowa.szuk50 += test([&](ListaDwukierunkowa& Dwu) { Dwu.szukaj(dane[rozmiar/2]); });
-            wyniki.dwukierunkowa.szuk75 += test([&](ListaDwukierunkowa& Dwu) { Dwu.szukaj(dane[3*rozmiar/4]); });
-            wyniki.dwukierunkowa.szuk100 += test([&](ListaDwukierunkowa& Dwu) { Dwu.szukaj(dane[rozmiar-1]); });
+            wyniki.dwukierunkowa.dodP   += test([&](ListaDwukierunkowa& d) { d.dodajNaPoczatek(999); });
+            wyniki.dwukierunkowa.dodK   += test([&](ListaDwukierunkowa& d) { d.dodajNaKoniec(888); });
+            wyniki.dwukierunkowa.dodPos += test([&](ListaDwukierunkowa& d) { d.dodajNaPozycje(777, rozmiar/2); });
+            wyniki.dwukierunkowa.dodLos += test([&](ListaDwukierunkowa& d) { d.dodajNaLosoweMiejsce(666); });
+            wyniki.dwukierunkowa.usP    += test([&](ListaDwukierunkowa& d) { d.usunZPoczatku(); });
+            wyniki.dwukierunkowa.usK    += test([&](ListaDwukierunkowa& d) { d.usunZKonca(); });
+            wyniki.dwukierunkowa.usPos  += test([&](ListaDwukierunkowa& d) { d.usunZPozycji(rozmiar/2); });
+            wyniki.dwukierunkowa.usLos  += test([&](ListaDwukierunkowa& d) { d.usunZLosowegoMiejsca(); });
+            wyniki.dwukierunkowa.szuk0   += test([&](ListaDwukierunkowa& d) { d.szukaj(dane[0]); });
+            wyniki.dwukierunkowa.szuk25  += test([&](ListaDwukierunkowa& d) { d.szukaj(dane[rozmiar/4]); });
+            wyniki.dwukierunkowa.szuk50  += test([&](ListaDwukierunkowa& d) { d.szukaj(dane[rozmiar/2]); });
+            wyniki.dwukierunkowa.szuk75  += test([&](ListaDwukierunkowa& d) { d.szukaj(dane[3*rozmiar/4]); });
+            wyniki.dwukierunkowa.szuk100 += test([&](ListaDwukierunkowa& d) { d.szukaj(dane[rozmiar-1]); });
         }
     }
 
