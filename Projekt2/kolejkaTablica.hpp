@@ -28,6 +28,8 @@ public:
     int extract_max();
     int find_max() const;
     void modify_key(int e, int p);
+    void increase_key(int e, int p);
+    void decrease_key(int e, int p);
     int return_size() const;
 };
 #endif

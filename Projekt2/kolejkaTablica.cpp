@@ -15,6 +15,7 @@ KolejkaTablica::~KolejkaTablica(){
 KolejkaTablica::KolejkaTablica(const KolejkaTablica& other) {
     licznik = other.licznik;
     rozmiar = other.rozmiar;
+    licznikKolejki = other.licznikKolejki;
     dane = new Element[rozmiar]; // alokacja nowej tablicy
     for (int i = 0; i < licznik; i++) {
         dane[i] = other.dane[i]; // kopiowanie danych
@@ -81,21 +82,25 @@ int KolejkaTablica::znajdzIndeksMax() const{
 }
 
 void KolejkaTablica::insert(int e, int p){
+    zwiekszRozmiar();
     dane[licznik]=Element(e, p, licznikKolejki);
     licznikKolejki++;
     licznik++;
 }
 
 int KolejkaTablica::extract_max(){
-    int maxIndeks = znajdzIndeksMax();
-    int maxWartosc = dane[maxIndeks].wartosc;
+    if (licznik == 0) throw std::runtime_error("Kolejka jest pusta!");
+    else{
+        int maxIndeks = znajdzIndeksMax();
+        int maxWartosc = dane[maxIndeks].wartosc;
 
-    for(int i=maxIndeks;i<licznik;i++){
-        dane[i]=dane[i+1];
+        for(int i=maxIndeks;i<licznik;i++){
+            dane[i]=dane[i+1];
+        }
+        licznik--;
+        zmniejszRozmiar();
+        return maxWartosc;
     }
-    licznik--;
-    zmniejszRozmiar();
-    return maxWartosc;
 }
 
 int KolejkaTablica::find_max() const{
@@ -110,6 +115,30 @@ void KolejkaTablica::modify_key(int e, int p){
         }
     }
 }
+// Zwiększa priorytet elementu o wartości e na p
+// Działa tylko jeśli nowy priorytet jest większy od obecnego
+void KolejkaTablica::increase_key(int e, int p){
+    for(int i=0;i<licznik;i++){
+        if(dane[i].wartosc==e){
+            if(p > dane[i].priorytet)   // zwiększamy tylko jeśli większy
+                dane[i].priorytet=p;
+            return;
+        }
+    }
+}
+
+// Zmniejsza priorytet elementu o wartości e na p
+// Działa tylko jeśli nowy priorytet jest mniejszy od obecnego
+void KolejkaTablica::decrease_key(int e, int p){
+    for(int i=0;i<licznik;i++){
+        if(dane[i].wartosc==e){
+            if(p < dane[i].priorytet)   // zmniejszamy tylko jeśli mniejszy
+                dane[i].priorytet=p;
+            return;
+        }
+    }
+}
+
 
 int KolejkaTablica::return_size() const{
     return licznik;

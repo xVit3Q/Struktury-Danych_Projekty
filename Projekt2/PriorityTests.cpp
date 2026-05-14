@@ -2,7 +2,8 @@
 #include "Pomoc.hpp"
 #include "FillTabRand.hpp"
 #include "KopiecBinarny.hpp"
-#include "KolejkaTablica.hpp"
+#include "kolejkaTablica.hpp"
+#include "losowy.hpp"
 
 #include <iostream>
 #include <chrono>
@@ -13,7 +14,7 @@
 
 using namespace std;
 
-static const vector<int> ROZMIARY = {10000, 50000, 100000, 500000, 1000000};
+static const vector<int> ROZMIARY = {50000, 80000, 100000, 160000, 200000, 400000, 600000, 1000000};
 
 static long long zmierzCzas(function<void()> op) {
     auto s = chrono::high_resolution_clock::now();
@@ -22,204 +23,148 @@ static long long zmierzCzas(function<void()> op) {
     return chrono::duration_cast<chrono::nanoseconds>(e - s).count();
 }
 
-static void zapiszWynik(ofstream& out, const string& struktura,
-                        int rozmiar, const string& operacja, long long ns) {
-    out << struktura << ","
-        << rozmiar   << ","
-        << operacja  << ","
-        << ns        << ","
-        << ns / 1'000'000.0 << "\n";
-}
-
-// ============================================================
-// KolejkaTablica — oryginalne nazwy metod bez zmian
-// ============================================================
-static void testujKolejkaTablica(int rozmiar, int powtorzenia,
-                                  ofstream& out,
-                                  const vector<unsigned int>& seedy) {
-    long long sumaInsert  = 0, sumaExtract = 0, sumaFind = 0,
-              sumaModInc  = 0, sumaModDec  = 0, sumaSize = 0;
-
-    for (int rep = 0; rep < powtorzenia; ++rep) {
-        // Generujemy losowe dane — bez żadnego sortowania
-        vector<int> dane = generujLosoweDane(rozmiar, seedy[rep]);
-
-        // ---- insert — nowa instancja per powtórzenie ----
-        {
-            KolejkaTablica kt;
-            flushCache();
-            long long t = zmierzCzas([&]() {
-                for (int i = 0; i < (int)dane.size(); i++)
-                    kt.insert(dane[i], dane[i]); // wartosc = priorytet = dane[i]
-            });
-            sumaInsert += t / rozmiar; // średni czas jednego insertu
-        }
-
-        // Wypełniona instancja do pozostałych operacji
-        KolejkaTablica ktFull;
-        for (int i = 0; i < (int)dane.size(); i++)
-            ktFull.insert(dane[i], dane[i]);
-
-        // ---- find_max ----
-        {
-            flushCache();
-            sumaFind += zmierzCzas([&]() { ktFull.find_max(); });
-        }
-
-        // ---- return_size ----
-        {
-            flushCache();
-            sumaSize += zmierzCzas([&]() { ktFull.return_size(); });
-        }
-
-        // ---- modify_key increase — środkowy element, priorytet + 999999 ----
-        {
-            KolejkaTablica ktCopy = ktFull;
-            int target = dane[rozmiar / 2];
-            flushCache();
-            sumaModInc += zmierzCzas([&]() {
-                ktCopy.modify_key(target, target + 999999);
-            });
-        }
-
-        // ---- modify_key decrease — środkowy element, priorytet - 999999 ----
-        {
-            KolejkaTablica ktCopy = ktFull;
-            int target = dane[rozmiar / 2];
-            flushCache();
-            sumaModDec += zmierzCzas([&]() {
-                ktCopy.modify_key(target, target - 999999);
-            });
-        }
-
-        // ---- extract_max ----
-        {
-            flushCache();
-            sumaExtract += zmierzCzas([&]() { ktFull.extract_max(); });
-        }
-    }
-
-    zapiszWynik(out, "KolejkaTablica", rozmiar, "insert",
-                sumaInsert  / powtorzenia);
-    zapiszWynik(out, "KolejkaTablica", rozmiar, "find_max",
-                sumaFind    / powtorzenia);
-    zapiszWynik(out, "KolejkaTablica", rozmiar, "return_size",
-                sumaSize    / powtorzenia);
-    zapiszWynik(out, "KolejkaTablica", rozmiar, "modify_key_inc",
-                sumaModInc  / powtorzenia);
-    zapiszWynik(out, "KolejkaTablica", rozmiar, "modify_key_dec",
-                sumaModDec  / powtorzenia);
-    zapiszWynik(out, "KolejkaTablica", rozmiar, "extract_max",
-                sumaExtract / powtorzenia);
-}
-
-// ============================================================
-// BinaryHeap
-// ============================================================
-static void testujBinaryHeap(int rozmiar, int powtorzenia,
-                              ofstream& out,
-                              const vector<unsigned int>& seedy) {
-    long long sumaInsert = 0, sumaExtract = 0, sumaFind = 0,
-              sumaInc    = 0, sumaDec     = 0, sumaSize = 0;
-
-    for (int rep = 0; rep < powtorzenia; ++rep) {
-        vector<int> dane = generujLosoweDane(rozmiar, seedy[rep]);
-
-        // ---- insert ----
-        {
-            BinaryHeap bh;
-            flushCache();
-            long long t = zmierzCzas([&]() {
-                for (int i = 0; i < (int)dane.size(); i++)
-                    bh.insert("e" + to_string(i), dane[i]);
-            });
-            sumaInsert += t / rozmiar;
-        }
-
-        // Wypełniona instancja
-        BinaryHeap bhFull;
-        for (int i = 0; i < (int)dane.size(); i++)
-            bhFull.insert("e" + to_string(i), dane[i]);
-
-        // ---- peek ----
-        {
-            flushCache();
-            sumaFind += zmierzCzas([&]() { bhFull.peek(); });
-        }
-
-        // ---- returnSize ----
-        {
-            flushCache();
-            sumaSize += zmierzCzas([&]() { bhFull.returnSize(); });
-        }
-
-        // ---- increaseKey ----
-        {
-            BinaryHeap bhCopy = bhFull;
-            flushCache();
-            sumaInc += zmierzCzas([&]() {
-                bhCopy.increaseKey("e" + to_string(rozmiar / 2),
-                                   dane[rozmiar / 2] + 999999);
-            });
-        }
-
-        // ---- decreaseKey ----
-        {
-            BinaryHeap bhCopy = bhFull;
-            flushCache();
-            sumaDec += zmierzCzas([&]() {
-                bhCopy.decreaseKey("e" + to_string(rozmiar / 2),
-                                   dane[rozmiar / 2] - 999999);
-            });
-        }
-
-        // ---- extractMax ----
-        {
-            flushCache();
-            sumaExtract += zmierzCzas([&]() { bhFull.extractMax(); });
-        }
-    }
-
-    zapiszWynik(out, "BinaryHeap", rozmiar, "insert",
-                sumaInsert / powtorzenia);
-    zapiszWynik(out, "BinaryHeap", rozmiar, "peek",
-                sumaFind   / powtorzenia);
-    zapiszWynik(out, "BinaryHeap", rozmiar, "returnSize",
-                sumaSize   / powtorzenia);
-    zapiszWynik(out, "BinaryHeap", rozmiar, "increaseKey",
-                sumaInc    / powtorzenia);
-    zapiszWynik(out, "BinaryHeap", rozmiar, "decreaseKey",
-                sumaDec    / powtorzenia);
-    zapiszWynik(out, "BinaryHeap", rozmiar, "extractMax",
-                sumaExtract/ powtorzenia);
-}
-
 // ============================================================
 // Jeden rozmiar — obie struktury
+// Używa WynikiStruktur z Pomoc.hpp zamiast lokalnych zmiennych
 // ============================================================
-void testujRozmiar(int rozmiar, int powtorzenia, ofstream& out,
-                   const vector<unsigned int>& seedy) {
-    cout << "  Rozmiar: " << rozmiar << "\n";
-    testujKolejkaTablica(rozmiar, powtorzenia, out, seedy);
-    testujBinaryHeap    (rozmiar, powtorzenia, out, seedy);
-    cout << "    OK\n";
+static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
+                               ofstream& out,
+                               const vector<unsigned int>& seedy) {
+    WynikiStruktur wyniki; // zerowane automatycznie przez = 0 w strukturze
+
+    for (int s = 0; s < ileSeedow; ++s) {
+        const vector<int> dane = generujLosoweDane(rozmiar, seedy[s]);
+
+        for (int rep = 0; rep < powtorzenia; ++rep) {
+            cout << "  seed " << (s+1) << "/" << ileSeedow
+                 << "  rozmiar " << rozmiar
+                 << "  rep " << (rep+1) << "/" << powtorzenia << "\r";
+            cout.flush();
+
+            // ======= KolejkaTablica =======
+            {
+                KolejkaTablica kt;
+                long long t = zmierzCzas([&]() {
+                    for (int i = 0; i < (int)dane.size(); i++)
+                        kt.insert(dane[i], dane[i]);
+                });
+                wyniki.kolejkaTablica.insert += t / rozmiar;
+            }
+
+            KolejkaTablica ktFull;
+            for (int i = 0; i < (int)dane.size(); i++)
+                ktFull.insert(dane[i], dane[i]);
+
+            wyniki.kolejkaTablica.peek       += zmierzCzas([&]() { ktFull.find_max(); });
+            wyniki.kolejkaTablica.returnSize += zmierzCzas([&]() { ktFull.return_size(); });
+            wyniki.kolejkaTablica.extract    += zmierzCzas([&]() { ktFull.extract_max(); });
+
+            {
+                KolejkaTablica ktC = ktFull;
+                int t = dane[rozmiar/2];
+                wyniki.kolejkaTablica.increaseKey += zmierzCzas([&]() {
+                    ktC.increase_key(t, t + losujPozycje(1, 999999));
+                });
+            }
+            {
+                KolejkaTablica ktC = ktFull;
+                int t = dane[rozmiar/2];
+                wyniki.kolejkaTablica.decreaseKey += zmierzCzas([&]() {
+                    ktC.decrease_key(t, t - losujPozycje(1, 999999));
+                });
+            }
+            {
+                KolejkaTablica ktC = ktFull;
+                int t = dane[rozmiar/2];
+                wyniki.kolejkaTablica.modifyKey += zmierzCzas([&]() {
+                    ktC.modify_key(t, losujInt32());
+                });
+            }
+
+            // ======= BinaryHeap =======
+            {
+                BinaryHeap bh;
+                long long tb = zmierzCzas([&]() {
+                    for (int i = 0; i < (int)dane.size(); i++)
+                        bh.insert("e" + to_string(i), dane[i]);
+                });
+                wyniki.kopiecBinarny.insert += tb / rozmiar;
+            }
+
+            BinaryHeap bhFull;
+            for (int i = 0; i < (int)dane.size(); i++)
+                bhFull.insert("e" + to_string(i), dane[i]);
+
+            wyniki.kopiecBinarny.peek       += zmierzCzas([&]() { bhFull.peek(); });
+            wyniki.kopiecBinarny.returnSize += zmierzCzas([&]() { bhFull.returnSize(); });
+            wyniki.kopiecBinarny.extract    += zmierzCzas([&]() { bhFull.extractMax(); });
+
+            {
+                BinaryHeap bhC = bhFull;
+                wyniki.kopiecBinarny.increaseKey += zmierzCzas([&]() {
+                    bhC.increaseKey("e" + to_string(rozmiar/2),
+                                    dane[rozmiar/2] + losujPozycje(1, 999999));
+                });
+            }
+            {
+                BinaryHeap bhC = bhFull;
+                wyniki.kopiecBinarny.decreaseKey += zmierzCzas([&]() {
+                    bhC.decreaseKey("e" + to_string(rozmiar/2),
+                                    dane[rozmiar/2] - losujPozycje(1, 999999));
+                });
+            }
+            {
+                BinaryHeap bhC = bhFull;
+                wyniki.kopiecBinarny.modifyKey += zmierzCzas([&]() {
+                    bhC.modifyKey("e" + to_string(rozmiar/2), losujInt32());
+                });
+            }
+        }
+        cout << "\n";
+    }
+
+    // Zapis średnich
+    long long n = (long long)ileSeedow * powtorzenia;
+
+    auto& kt = wyniki.kolejkaTablica;
+    zapiszCsv(out, "KolejkaTablica", rozmiar, "insert",       kt.insert      / n);
+    zapiszCsv(out, "KolejkaTablica", rozmiar, "find_max",     kt.peek        / n);
+    zapiszCsv(out, "KolejkaTablica", rozmiar, "return_size",  kt.returnSize  / n);
+    zapiszCsv(out, "KolejkaTablica", rozmiar, "increase_key", kt.increaseKey / n);
+    zapiszCsv(out, "KolejkaTablica", rozmiar, "decrease_key", kt.decreaseKey / n);
+    zapiszCsv(out, "KolejkaTablica", rozmiar, "modify_key",   kt.modifyKey   / n);
+    zapiszCsv(out, "KolejkaTablica", rozmiar, "extract_max",  kt.extract     / n);
+
+    auto& bh = wyniki.kopiecBinarny;
+    zapiszCsv(out, "BinaryHeap", rozmiar, "insert",      bh.insert      / n);
+    zapiszCsv(out, "BinaryHeap", rozmiar, "peek",        bh.peek        / n);
+    zapiszCsv(out, "BinaryHeap", rozmiar, "returnSize",  bh.returnSize  / n);
+    zapiszCsv(out, "BinaryHeap", rozmiar, "increaseKey", bh.increaseKey / n);
+    zapiszCsv(out, "BinaryHeap", rozmiar, "decreaseKey", bh.decreaseKey / n);
+    zapiszCsv(out, "BinaryHeap", rozmiar, "modifyKey",   bh.modifyKey   / n);
+    zapiszCsv(out, "BinaryHeap", rozmiar, "extractMax",  bh.extract     / n);
 }
 
-// ============================================================
-// Pełny benchmark
-// ============================================================
-void testStructuresSr(int powtorzenia) {
-    cout << "\n===== TESTY KOLEJEK PRIORYTETOWYCH =====\n\n";
+void testujRozmiar(int rozmiar, int powtorzenia, int ileSeedow,
+                   ofstream& out, const vector<unsigned int>& seedy) {
+    cout << "\n  === Rozmiar: " << rozmiar << " ===\n";
+    testujRozmiarWewn(rozmiar, powtorzenia, ileSeedow, out, seedy);
+    cout << "  [" << rozmiar << "] OK\n";
+}
+
+void testAllStructures(int powtorzenia, int ileSeedow) {
+    cout << "\n===== TESTY KOLEJEK PRIORYTETOWYCH =====\n";
+    cout << "Seedy: " << ileSeedow
+         << "  Powtorzenia/seed: " << powtorzenia << "\n\n";
 
     ofstream out("wyniki_kolejek.csv");
-    if (!out.is_open()) { cerr << "Blad otwarcia pliku CSV\n"; return; }
+    if (!out.is_open()) { cerr << "Blad CSV\n"; return; }
 
     out << "Struktura,Rozmiar,Operacja,Czas_ns,Czas_ms\n";
 
     for (int rozmiar : ROZMIARY) {
-        cout << "\n--- Rozmiar: " << rozmiar << " ---\n";
-        vector<unsigned int> seedy = generujSeedy(powtorzenia);
-        testujRozmiar(rozmiar, powtorzenia, out, seedy);
+        const vector<unsigned int> seedy = generujSeedy(ileSeedow);
+        testujRozmiar(rozmiar, powtorzenia, ileSeedow, out, seedy);
     }
 
     out.close();

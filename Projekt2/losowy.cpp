@@ -11,12 +11,12 @@ static std::mt19937& getRng() {
 }
 
 int losujPozycje(int min, int max) {
-    // tworzymy distribution na stosie — kompilator to zoptymalizuje
-    // ale zakres jest zawsze poprawny
     return std::uniform_int_distribution<int>(min, max)(getRng());
 }
 
 int losujInt32() {
-    // tu zakres to pełny int — distribution nie jest potrzebny
-    return (int)getRng()();
+    // Ograniczamy do dodatnich żeby uniknąć problemów z decrease_key
+    // (target - losujInt32() może overflow gdy losujInt32() jest ujemne)
+    return std::uniform_int_distribution<int>(0,
+        std::numeric_limits<int>::max())(getRng());
 }

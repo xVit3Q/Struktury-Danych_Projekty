@@ -144,7 +144,6 @@ static void menuBinaryHeap(BinaryHeap& bh) {
 // main
 // ============================================================
 int main() {
-    cout.flush();
 
     while (true) {
         int count = 0;
@@ -185,10 +184,12 @@ int main() {
 
         // 3. Pełny benchmark
         if (count == -2) {
-            int powtorzenia;
+            int powtorzenia, ileSeedow;
+            cout << "Dla ilu różncy seedów benchmark?";
+            cin >> ileSeedow;
             cout << "Podaj liczbe powtorzen (np. 20): ";
             cin >> powtorzenia;
-            testStructuresSr(powtorzenia);
+            testAllStructures(powtorzenia, ileSeedow);
             continue;
         }
     }

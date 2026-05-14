@@ -1,7 +1,6 @@
 #include "Pomoc.hpp"
 #include "FillTabRand.hpp"
 #include <fstream>
-#include <random>
 
 using namespace std;
 
@@ -28,12 +27,4 @@ vector<int> wczytajZPliku() {
     int x;
     while (file >> x) dane.push_back(x);
     return dane;
-}
-void flushCache() {
-    static const size_t SIZE = 64 * 1024 * 1024; // 64 MB — powyżej większości L3
-    static volatile char buffer[SIZE];            // volatile na buforze, nie na sumie
-
-    for (size_t i = 0; i < SIZE; i += 64) {      // co linię cache
-        buffer[i] = static_cast<char>(i);         // zapis wymuszony przez volatile
-    }
 }

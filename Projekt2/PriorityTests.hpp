@@ -21,7 +21,7 @@ void testujRozmiar(int rozmiar, int powtorzenia, std::ofstream& out);
 // Jeden typ danych × wszystkie rozmiary
 void testujTypDanych(const std::string& typ, int powtorzenia, std::ofstream& out);
 
-// Pełny benchmark: wszystkie rozmiary × wszystkie typy
-void testStructuresSr(int powtorzenia);
+// Pełny benchmark: wszystkie rozmiary
+void testAllStructures(int powtorzenia, int ileSeedow);
 
 #endif // PRIORITYTESTS HPP

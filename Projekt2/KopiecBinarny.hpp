@@ -1,4 +1,5 @@
-#pragma once
+#ifndef KOPIEC_BINARNY_HPP
+#define KOPIEC_BINARNY_HPP
 #include <vector>
 #include <string>
 
@@ -48,3 +49,4 @@ public:
     bool isEmpty() const;     // czy pusta
     void print() const;       // wypisz zawartość
 };
+#endif
