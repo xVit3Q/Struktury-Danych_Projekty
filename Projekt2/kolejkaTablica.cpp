@@ -1,5 +1,6 @@
 #include "kolejkaTablica.hpp"
 #include <iostream>
+#include <stdexcept>
 
 KolejkaTablica::KolejkaTablica(){
     licznik=0;
@@ -22,17 +23,20 @@ KolejkaTablica::KolejkaTablica(const KolejkaTablica& other) {
     }
 }
 KolejkaTablica& KolejkaTablica::operator=(const KolejkaTablica& other) {
-    if (this == &other)  // sprawdzenie samoprzydzielenia
-        return *this; // zwrócenie obiektu bez zmian
+    if (this == &other) return *this;
 
-    delete[] dane; // zwolnienie starej tablicy
+    Element* noweDane = new Element[other.rozmiar];//alokacja nowej tablicy
+    for (int i = 0; i < other.licznik; i++) {
+        noweDane[i] = other.dane[i];//kopiowanie danych
+    }
 
+    delete[] dane;//zwolnienie starej tablicy
+
+    dane = noweDane;
     licznik = other.licznik;
     rozmiar = other.rozmiar;
-    dane = new Element[rozmiar]; // alokacja nowej tablicy
-    for (int i = 0; i < licznik; i++) {
-        dane[i] = other.dane[i]; // kopiowanie danych
-    }
+    licznikKolejki = other.licznikKolejki;
+
     return *this;
 }
 
@@ -89,22 +93,23 @@ void KolejkaTablica::insert(int e, int p){
 }
 
 int KolejkaTablica::extract_max(){
-    if (licznik == 0) throw std::runtime_error("Kolejka jest pusta!");
-    else{
-        int maxIndeks = znajdzIndeksMax();
-        int maxWartosc = dane[maxIndeks].wartosc;
+    if (licznik == 0) throw std::runtime_error("Kolejka jest pusta");
+    
+    int maxIndeks = znajdzIndeksMax();
+    int maxWartosc = dane[maxIndeks].wartosc;
 
-        for(int i=maxIndeks;i<licznik;i++){
-            dane[i]=dane[i+1];
-        }
-        licznik--;
-        zmniejszRozmiar();
-        return maxWartosc;
-    }
+    dane[maxIndeks] = dane[licznik - 1]; 
+    
+    licznik--;
+    zmniejszRozmiar();
+    return maxWartosc;
 }
 
 int KolejkaTablica::find_max() const{
-    return dane[znajdzIndeksMax()].wartosc;
+    int maxIndeks = znajdzIndeksMax();
+    if (maxIndeks == -1) throw std::runtime_error("Kolejka jest pusta");
+    
+    return dane[maxIndeks].wartosc;
 }
 
 void KolejkaTablica::modify_key(int e, int p){
@@ -138,7 +143,6 @@ void KolejkaTablica::decrease_key(int e, int p){
         }
     }
 }
-
 
 int KolejkaTablica::return_size() const{
     return licznik;
