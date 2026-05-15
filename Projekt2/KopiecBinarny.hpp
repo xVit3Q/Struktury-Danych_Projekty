@@ -1,52 +1,49 @@
-#ifndef KOPIEC_BINARNY_HPP
-#define KOPIEC_BINARNY_HPP
-#include <vector>
-#include <string>
 
-// ============================================================
-// Element przechowywany w kopcu binarnym
-// ============================================================
-struct BinaryHeapElement {
-    std::string value;    // wartość elementu
-    int priority;         // priorytet elementu
+#ifndef KOLEJKA_KOPIEC_HPP
+#define KOLEJKA_KOPIEC_HPP
 
-    BinaryHeapElement(const std::string& v, int p) : value(v), priority(p) {}
+struct ElementKopiec {
+    int wartosc;
+    int priorytet;
+    long long kolejnosc;
+    ElementKopiec() : wartosc(0), priorytet(0), kolejnosc(0) {}
+    ElementKopiec(int e, int p, long long k) : wartosc(e), priorytet(p), kolejnosc(k) {}
 };
 
-// ============================================================
-// Kolejka priorytetowa MAX oparta na kopcu binarnym
-// Kopiec binarny przechowuje elementy w tablicy (wektorze)
-// Rodzic węzła i: leweDziecko = 2*i+1, praweDziecko = 2*i+2
-// ============================================================
-class BinaryHeap {
+class KopiecBinarny {
 private:
-    std::vector<BinaryHeapElement> heap; // wewnętrzna tablica kopca
+    ElementKopiec* dane;
+    int licznik;
+    int rozmiar;
+    long long licznikKolejki;
 
-    // Pomocnicze metody do utrzymania własności kopca
-    void heapifyUp(int index);           // "bąbelkowanie" w górę po wstawieniu
-    void heapifyDown(int index);         // "bąbelkowanie" w dół po usunięciu
-    void swap(int i, int j);             // zamiana dwóch elementów
+    void zwiekszRozmiar();
+    void zmniejszRozmiar();
 
-    int parent(int i) const;             // indeks rodzica
-    int leftChild(int i) const;          // indeks lewego dziecka
-    int rightChild(int i) const;         // indeks prawego dziecka
+    // Indeksy węzłów w kopcu (tablica indeksowana od 1)
+    int rodzic(int i) const;
+    int leweDziecko(int i) const;
+    int praweDziecko(int i) const;
 
-    int findIndex(const std::string& value) const; // szuka indeksu elementu po wartości
+    //Jesli dwa elemnety o tyym samym kluczu to ten co byl pierwszy dodany ma priorytet fifo
+    bool maNadrzednyPriorytet(int i, int j) const;
+
+    void heapifyUp(int i);    // przywraca własność kopca od i w górę
+    void heapifyDown(int i);     // przywraca własność kopca od i w dół
 
 public:
-    BinaryHeap() = default;
-    ~BinaryHeap() = default;
+    KopiecBinarny();
+    ~KopiecBinarny();
+    KopiecBinarny(const KopiecBinarny& other);
+    KopiecBinarny& operator=(const KopiecBinarny& other);
 
-    void insert(const std::string& value, int priority); // dodaj element
-    BinaryHeapElement extractMax();                       // usuń i zwróć max
-    const BinaryHeapElement& peek() const;               // podejrzyj max bez usuwania
-
-    void increaseKey(const std::string& value, int newPriority); // zwiększ priorytet
-    void decreaseKey(const std::string& value, int newPriority); // zmniejsz priorytet
-    void modifyKey(const std::string& value, int newPriority);   // zmień priorytet
-
-    int returnSize() const;   // zwróć rozmiar
-    bool isEmpty() const;     // czy pusta
-    void print() const;       // wypisz zawartość
+    void insert(int e, int p);
+    int extract_max();
+    int find_max() const;
+    void modify_key(int e, int p);
+    void increase_key(int e, int p);
+    void decrease_key(int e, int p);
+    int return_size() const;
 };
+
 #endif

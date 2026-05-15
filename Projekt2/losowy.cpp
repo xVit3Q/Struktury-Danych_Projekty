@@ -14,9 +14,13 @@ static int g_rozmiar = 1;
 void ustawRozmiar(int r) {g_rozmiar = r;}
 
 int losujPozycje() {
-    return std::uniform_int_distribution<int>(0, g_rozmiar)(getRng());
+    return std::uniform_int_distribution<int>(0, g_rozmiar-1)(getRng());
 }
 
 int losujPriorytet() {
     return std::uniform_int_distribution<int>(0, 2*g_rozmiar)(getRng());
+}
+int losujNizszyPriorytet(int aktualny){
+    if(aktualny == 0) return 0;;
+    return std::uniform_int_distribution<int>(0,aktualny)(getRng());
 }

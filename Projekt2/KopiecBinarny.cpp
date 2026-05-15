@@ -1,192 +1,208 @@
 #include "KopiecBinarny.hpp"
-#include <iostream>
 #include <stdexcept>
 
-using std::string;
-using std::cout;
-using std::endl;
+// -----------------------------------------------------------------------
+// Konstruktory / destruktor / operatory
+// -----------------------------------------------------------------------
+ 
 
-// ============================================================
-// Metody pomocnicze — obliczanie indeksów
-// ============================================================
+KopiecBinarny::KopiecBinarny() {
+    licznik = 0;
+    rozmiar = 1;
+    licznikKolejki = 0;
+    dane = new ElementKopiec[rozmiar + 1]; //indeksujemy od 1;
+    }
+KopiecBinarny::~KopiecBinarny() {
+        delete[] dane;
+    }
 
-int BinaryHeap::parent(int i) const {
-    return (i - 1) / 2;
+KopiecBinarny::KopiecBinarny(const KopiecBinarny& other)
+    {
+        licznik = other.licznik;
+        rozmiar = other.rozmiar;
+        licznikKolejki = other.licznikKolejki;
+        dane = new ElementKopiec[rozmiar+1];
+        for (int i = 1; i <= licznik; i++)
+        {
+            dane[i] = other.dane[i];
+        }
+    }
+KopiecBinarny& KopiecBinarny::operator=(const KopiecBinarny& other)
+{
+    if (this == &other) return *this;
+
+    ElementKopiec* noweDane = new ElementKopiec[other.rozmiar +1];
+    for (int i = 1; i<= other.licznik; i++)
+    {
+        noweDane[i] = other.dane[i];
+    }
+
+    delete[] dane;
+
+    dane = noweDane;
+    licznik = other.licznik;
+    rozmiar = other.rozmiar;
+    licznikKolejki = other.licznikKolejki;
+    return *this;
+
 }
 
-int BinaryHeap::leftChild(int i) const {
-    return 2 * i + 1;
-}
-
-int BinaryHeap::rightChild(int i) const {
-    return 2 * i + 2;
-}
-
-// ============================================================
-// Zamiana dwóch elementów w tablicy kopca
-// ============================================================
-void BinaryHeap::swap(int i, int j) {
-    BinaryHeapElement temp = heap[i];
-    heap[i] = heap[j];
-    heap[j] = temp;
-}
-
-// ============================================================
-// heapifyUp — przywraca własność kopca po wstawieniu elementu
-// Nowy element wstawiony na koniec "wędruje" w górę
-// dopóki jego priorytet jest wyższy niż rodzica
-// ============================================================
-void BinaryHeap::heapifyUp(int index) {
-    while (index > 0 && heap[index].priority > heap[parent(index)].priority) {
-        swap(index, parent(index));
-        index = parent(index);
+void KopiecBinarny::zwiekszRozmiar(){
+    if(licznik >= rozmiar){
+        rozmiar *= 2;
+        ElementKopiec* noweDane = new ElementKopiec[rozmiar+1];
+        for (int i = 1; i <= licznik;i++)
+        {
+            noweDane[i] = dane[i];
+        }
+        delete[] dane;
+        dane = noweDane;
     }
 }
 
-// ============================================================
-// heapifyDown — przywraca własność kopca po usunięciu korzenia
-// Element z końca przeniesiony na szczyt "wędruje" w dół
-// dopóki jego priorytet jest niższy niż któregoś z dzieci
-// ============================================================
-void BinaryHeap::heapifyDown(int index) {
-    int largest = index;
-    int left    = leftChild(index);
-    int right   = rightChild(index);
-    int n       = (int)heap.size();
-
-    // Sprawdź czy lewe dziecko istnieje i ma wyższy priorytet
-    if (left < n && heap[left].priority > heap[largest].priority)
-        largest = left;
-
-    // Sprawdź czy prawe dziecko istnieje i ma wyższy priorytet niż obecny largest
-    if (right < n && heap[right].priority > heap[largest].priority)
-        largest = right;
-
-    // Jeśli largest zmienił się — zamień i kontynuuj w dół
-    if (largest != index) {
-        swap(index, largest);
-        heapifyDown(largest);
+void KopiecBinarny::zmniejszRozmiar(){
+    int staryRozmiar = rozmiar;
+    while(licznik>0 && licznik <= rozmiar /4 && rozmiar > 1)
+    {
+        rozmiar /= 2;
+    }
+    if (rozmiar != staryRozmiar)
+    {
+        ElementKopiec* noweDane = new ElementKopiec[rozmiar+1];
+        for (int i = 1; i <= licznik; i++)
+        {
+            noweDane[i] = dane[i];
+        }
+        delete[] dane;
+        dane = noweDane;
     }
 }
 
-// ============================================================
-// Wyszukiwanie elementu po wartości — O(n)
-// ============================================================
-int BinaryHeap::findIndex(const string& value) const {
-    for (int i = 0; i < (int)heap.size(); i++) {
-        if (heap[i].value == value)
-            return i;
+int KopiecBinarny::rodzic(int i) const {
+    return i/2;
+}
+int KopiecBinarny::praweDziecko(int i) const {
+    return 2*i+1;
+}
+int KopiecBinarny::leweDziecko(int i) const {
+    return 2*i;
+}
+
+//obsługiwanie fifo
+bool KopiecBinarny::maNadrzednyPriorytet(int i, int j) const {
+    if(dane[i].priorytet != dane[j].priorytet)
+    {
+        return dane[i].priorytet > dane[j].priorytet;
     }
-    return -1; // nie znaleziono
+    return dane[i].kolejnosc < dane[j].kolejnosc;
 }
+void KopiecBinarny::heapifyUp(int i){
+    while (i> 1 && maNadrzednyPriorytet(i,rodzic(i)))
+    {
+        //zamieniamy wezeł z rodzicem
+        ElementKopiec tmp = dane[i];
+        dane[i] =  dane[rodzic(i)];
+        dane[rodzic(i)] = tmp;
 
-// ============================================================
-// insert — wstawia nowy element na koniec tablicy,
-// następnie przywraca własność kopca przez heapifyUp — O(log n)
-// ============================================================
-void BinaryHeap::insert(const string& value, int priority) {
-    heap.emplace_back(value, priority);
-    heapifyUp((int)heap.size() - 1);
-}
-
-// ============================================================
-// extractMax — usuwa i zwraca korzeń (element o max priorytecie)
-// Zamienia korzeń z ostatnim elementem, usuwa ostatni,
-// następnie przywraca własność przez heapifyDown — O(log n)
-// ============================================================
-BinaryHeapElement BinaryHeap::extractMax() {
-    if (heap.empty())
-        throw std::runtime_error("BinaryHeap: kolejka jest pusta!");
-
-    BinaryHeapElement maxElem = heap[0]; // zapamiętaj maksimum
-
-    heap[0] = heap.back();  // przenieś ostatni element na szczyt
-    heap.pop_back();         // usuń ostatni element
-
-    if (!heap.empty())
-        heapifyDown(0);      // przywróć własność kopca
-
-    return maxElem;
-}
-
-// ============================================================
-// peek — zwraca element o największym priorytecie bez usuwania
-// Korzeń kopca to zawsze maksimum — O(1)
-// ============================================================
-const BinaryHeapElement& BinaryHeap::peek() const {
-    if (heap.empty())
-        throw std::runtime_error("BinaryHeap: kolejka jest pusta!");
-    return heap[0];
-}
-
-// ============================================================
-// increaseKey — zwiększa priorytet elementu
-// Po zwiększeniu element może być wyżej niż rodzic — heapifyUp
-// ============================================================
-void BinaryHeap::increaseKey(const string& value, int newPriority) {
-    int idx = findIndex(value);
-    if (idx == -1)
-        throw std::runtime_error("BinaryHeap: element nie istnieje!");
-    if (newPriority < heap[idx].priority)
-        throw std::invalid_argument("BinaryHeap::increaseKey: nowy priorytet musi byc wiekszy!");
-
-    heap[idx].priority = newPriority;
-    heapifyUp(idx); // nowy priorytet może być wyższy niż rodzic
-}
-
-// ============================================================
-// decreaseKey — zmniejsza priorytet elementu
-// Po zmniejszeniu element może być niżej niż dzieci — heapifyDown
-// ============================================================
-void BinaryHeap::decreaseKey(const string& value, int newPriority) {
-    int idx = findIndex(value);
-    if (idx == -1)
-        throw std::runtime_error("BinaryHeap: element nie istnieje!");
-    if (newPriority > heap[idx].priority)
-        throw std::invalid_argument("BinaryHeap::decreaseKey: nowy priorytet musi byc mniejszy!");
-
-    heap[idx].priority = newPriority;
-    heapifyDown(idx); // nowy priorytet może być niższy niż dzieci
-}
-
-// ============================================================
-// modifyKey — zmienia priorytet w dowolnym kierunku
-// ============================================================
-void BinaryHeap::modifyKey(const string& value, int newPriority) {
-    int idx = findIndex(value);
-    if (idx == -1)
-        throw std::runtime_error("BinaryHeap: element nie istnieje!");
-
-    int oldPriority = heap[idx].priority;
-    heap[idx].priority = newPriority;
-
-    if (newPriority > oldPriority)
-        heapifyUp(idx);
-    else if (newPriority < oldPriority)
-        heapifyDown(idx);
-    // jeśli równy — nic nie rób
-}
-
-// ============================================================
-// returnSize — zwraca liczbę elementów w kopcu — O(1)
-// ============================================================
-int BinaryHeap::returnSize() const {
-    return (int)heap.size();
-}
-
-bool BinaryHeap::isEmpty() const {
-    return heap.empty();
-}
-
-// ============================================================
-// print — wypisuje zawartość kopca (kolejność tablicy)
-// ============================================================
-void BinaryHeap::print() const {
-    if (heap.empty()) {
-        cout << "  [pusty kopiec]" << endl;
-        return;
+        i = rodzic(i);
     }
-    cout << "  BinaryHeap (" << heap.size() << " elementow):" << endl;
-    for (const auto& e : heap)
-        cout << "    [" << e.value << ", priorytet=" << e.priority << "]" << endl;
+}
+void KopiecBinarny::heapifyDown(int i)
+{
+    int najwiekszy = i;
+
+    int l = leweDziecko(i);
+    int p = praweDziecko(i);
+
+    if(l <= licznik && maNadrzednyPriorytet(l,najwiekszy))
+    {
+        najwiekszy = l;
+    }
+    if(p <= licznik && maNadrzednyPriorytet(p,najwiekszy))
+    {
+        najwiekszy = p;
+    }
+
+    if(najwiekszy != i)
+    {
+        ElementKopiec tmp = dane[i];
+        dane[i] = dane[najwiekszy];
+        dane[najwiekszy] = tmp;
+
+        heapifyDown(najwiekszy);
+    }
+}
+void KopiecBinarny::insert(int e, int p)
+{
+    zwiekszRozmiar();
+    licznik++;
+    dane[licznik] = ElementKopiec(e,p, licznikKolejki);
+    licznikKolejki++;
+    heapifyUp(licznik);
+}
+
+int KopiecBinarny::extract_max() {
+    if(licznik == 0) throw std::runtime_error("Kolejka jest pusta");
+
+    int maxWartosc = dane[1].wartosc; //korzen to maksimum
+
+    dane[1] = dane[licznik];
+    licznik--;
+    zmniejszRozmiar();
+
+    if(licznik > 0){
+        heapifyDown(1);
+    }
+    return maxWartosc;
+}
+
+int KopiecBinarny::find_max() const {
+    if(licznik == 0) throw std::runtime_error("Kolejka jest pusta");
+    return dane[1].wartosc;
+}
+void KopiecBinarny::modify_key(int e, int p)
+{
+    for (int i = 1; i <= licznik; i++)
+    {
+        if(dane[i].wartosc == e){
+            int starePrio = dane[i].priorytet;
+            dane[i].priorytet = p;
+
+            if(p > starePrio)
+            {
+                heapifyUp(i);
+            }
+            else if (p < starePrio){
+                heapifyDown(i);
+            }
+            return;
+        }
+
+    }
+}
+
+void KopiecBinarny::increase_key(int e, int p){
+    for(int i = 1; i <= licznik; i++){
+        if(dane[i].wartosc == e){
+            if(p > dane[i].priorytet){
+                dane[i].priorytet = p;
+                heapifyUp(i);
+            }
+            return;
+        }
+    }
+}
+void KopiecBinarny::decrease_key(int e, int p){
+    for(int i = 1; i <= licznik; i++){
+        if(dane[i].wartosc == e){
+            if(p < dane[i].priorytet){
+                dane[i].priorytet = p;
+                heapifyDown(i);
+            }
+            return;
+        }
+    }
+}
+int KopiecBinarny::return_size() const{
+    return licznik;
 }

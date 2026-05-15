@@ -9,5 +9,6 @@ int losujPozycje();
 
 // Losuje priorytet dla struktury -> Priorytwtów jest 2*size
 int losujPriorytet();
-
+//Losuje priorytet dla decrease key aby nie wsyzedł ponizej 0
+int losujNizszyPriorytet(int a);
 #endif
