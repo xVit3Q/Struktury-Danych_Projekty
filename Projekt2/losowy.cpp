@@ -9,14 +9,14 @@ static std::mt19937& getRng() {
     );
     return rng;
 }
+//ustawienie rozmiaru
+static int g_rozmiar = 1;
+void ustawRozmiar(int r) {g_rozmiar = r;}
 
-int losujPozycje(int min, int max) {
-    return std::uniform_int_distribution<int>(min, max)(getRng());
+int losujPozycje() {
+    return std::uniform_int_distribution<int>(0, g_rozmiar)(getRng());
 }
 
-int losujInt32() {
-    // Ograniczamy do dodatnich żeby uniknąć problemów z decrease_key
-    // (target - losujInt32() może overflow gdy losujInt32() jest ujemne)
-    return std::uniform_int_distribution<int>(0,
-        std::numeric_limits<int>::max())(getRng());
+int losujPriorytet() {
+    return std::uniform_int_distribution<int>(0, 2*g_rozmiar)(getRng());
 }
