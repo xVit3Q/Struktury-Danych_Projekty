@@ -21,6 +21,6 @@ int losujPriorytet() {
     return std::uniform_int_distribution<int>(0, 2*g_rozmiar)(getRng());
 }
 int losujNizszyPriorytet(int aktualny){
-    if(aktualny == 0) return 0;;
+    if(aktualny <= 0) return 0;;
     return std::uniform_int_distribution<int>(0,aktualny)(getRng());
 }

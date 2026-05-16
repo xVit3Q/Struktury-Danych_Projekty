@@ -15,7 +15,7 @@
 using namespace std;
 
 static const vector<int> ROZMIARY = {50000, 80000, 100000, 160000, 200000, 400000, 600000, 1000000};
-
+static const int BLOK = 100;
 static long long zmierzCzas(function<void()> op) {
     auto s = chrono::high_resolution_clock::now();
     op();
@@ -48,14 +48,33 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
                 });
                 wyniki.kolejkaTablica.insert += t / rozmiar;
             }
-
             KolejkaTablica ktFull;
             for (int i = 0; i < (int)dane.size(); i++)
                 ktFull.insert(dane[i], dane[i]);
 
-            wyniki.kolejkaTablica.peek       += zmierzCzas([&]() { ktFull.find_max(); });
-            wyniki.kolejkaTablica.returnSize += zmierzCzas([&]() { ktFull.return_size(); });
-            wyniki.kolejkaTablica.extract    += zmierzCzas([&]() { ktFull.extract_max(); });
+            long long czasFindMaxT = zmierzCzas([&](){
+                for  (int i = 0; i < BLOK; i++)
+                {
+                    ktFull.find_max();
+                }
+            });
+            wyniki.kolejkaTablica.peek += czasFindMaxT /BLOK;
+            long long czasRetunSizeT = zmierzCzas([&](){
+                     for  (int i = 0; i < BLOK; i++)
+                {
+                    ktFull.return_size();
+                }
+            });
+            wyniki.kolejkaTablica.returnSize += czasRetunSizeT /BLOK;
+            
+            {
+                KolejkaTablica  ktC = ktFull;
+                wyniki.kolejkaTablica.extract += zmierzCzas([&](){
+                    ktC.extract_max();
+                });
+            
+            }
+
 
             {
                 KolejkaTablica ktC = ktFull;
@@ -95,9 +114,27 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
             for (int i = 0; i < (int)dane.size(); i++)
                 bhFull.insert(dane[i], dane[i]);
 
-            wyniki.kopiecBinarny.peek       += zmierzCzas([&]() { bhFull.find_max(); });
-            wyniki.kopiecBinarny.returnSize += zmierzCzas([&]() { bhFull.return_size(); });
-            wyniki.kopiecBinarny.extract    += zmierzCzas([&]() { bhFull.extract_max(); });
+                   long long czasFindMaxB = zmierzCzas([&](){
+                for  (int i = 0; i < BLOK; i++)
+                {
+                    bhFull.find_max();
+                }
+            });
+            wyniki.kopiecBinarny.peek += czasFindMaxB /BLOK;
+            long long czasRetunSizeB = zmierzCzas([&](){
+                     for  (int i = 0; i < BLOK; i++)
+                {
+                    bhFull.return_size();
+                }
+            });
+            wyniki.kopiecBinarny.returnSize += czasRetunSizeB / BLOK;
+            {
+                KopiecBinarny  bhC = bhFull;
+                wyniki.kopiecBinarny.extract += zmierzCzas([&](){
+                    bhC.extract_max();
+                });
+            
+            }
 
             {
                 KopiecBinarny bhC = bhFull;

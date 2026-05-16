@@ -84,53 +84,52 @@ static void menuKolejkaTablica(KolejkaTablica& kt) {
 // ============================================================
 // Menu ręczne — BinaryHeap
 // ============================================================
-static void menuBinaryHeap(BinaryHeap& bh) {
+static void menuKopiecBinarny(KopiecBinarny& kb) {
     while (true) {
         int op = showOperationsMenu();
-        string wartosc; int priorytet;
+        int wartosc, priorytet;
 
         switch (op) {
-            case 1:
-                cout << "Wartosc (string): "; cin >> wartosc;
-                cout << "Priorytet (int):  "; cin >> priorytet;
-                zmierzIWyswietl("BinaryHeap::insert",
-                    [&]() { bh.insert(wartosc, priorytet); });
+            case 1: // insert(int, int)
+                cout << "Wartosc (int):   "; cin >> wartosc;
+                cout << "Priorytet (int): "; cin >> priorytet;
+                zmierzIWyswietl("KolejkaTablica::insert",
+                    [&]() { kb.insert(wartosc, priorytet); });
                 break;
 
-            case 2:
-                zmierzIWyswietl("BinaryHeap::extractMax",
+            case 2: // extract_max
+                zmierzIWyswietl("KolejkaTablica::extract_max",
                     [&]() {
-                        auto e = bh.extractMax();
-                        cout << "  Max: [" << e.value << ", p=" << e.priority << "]\n";
+                        int v = kb.extract_max();
+                        cout << "  Usunieto max: " << v << "\n";
                     });
                 break;
 
-            case 3:
-                zmierzIWyswietl("BinaryHeap::peek",
+            case 3: // find_max
+                zmierzIWyswietl("KolejkaTablica::find_max",
                     [&]() {
-                        const auto& e = bh.peek();
-                        cout << "  Max: [" << e.value << ", p=" << e.priority << "]\n";
+                        cout << "  Max: " << kb.find_max() << "\n";
                     });
                 break;
 
-            case 4:
-                cout << "Wartosc: "; cin >> wartosc;
-                cout << "Nowy priorytet: "; cin >> priorytet;
-                zmierzIWyswietl("BinaryHeap::increaseKey",
-                    [&]() { bh.increaseKey(wartosc, priorytet); });
+            case 4: // modify_key (increase)
+                cout << "Wartosc elementu:  "; cin >> wartosc;
+                cout << "Nowy priorytet:    "; cin >> priorytet;
+                zmierzIWyswietl("KolejkaTablica::modify_key (increase)",
+                    [&]() { kb.modify_key(wartosc, priorytet); });
                 break;
 
-            case 5:
-                cout << "Wartosc: "; cin >> wartosc;
-                cout << "Nowy priorytet: "; cin >> priorytet;
-                zmierzIWyswietl("BinaryHeap::decreaseKey",
-                    [&]() { bh.decreaseKey(wartosc, priorytet); });
+            case 5: // modify_key (decrease)
+                cout << "Wartosc elementu:  "; cin >> wartosc;
+                cout << "Nowy priorytet:    "; cin >> priorytet;
+                zmierzIWyswietl("KolejkaTablica::modify_key (decrease)",
+                    [&]() { kb.modify_key(wartosc, priorytet); });
                 break;
 
-            case 6:
-                zmierzIWyswietl("BinaryHeap::returnSize",
+            case 6: // return_size
+                zmierzIWyswietl("KolejkaTablica::return_size",
                     [&]() {
-                        cout << "  Rozmiar: " << bh.returnSize() << "\n";
+                        cout << "  Rozmiar: " << kb.return_size() << "\n";
                     });
                 break;
 
@@ -173,11 +172,11 @@ int main() {
                 cout << "Wypelniono KolejkaTablica (" << kt.return_size() << " elem.)\n";
                 menuKolejkaTablica(kt);
             } else {
-                BinaryHeap bh;
+                KopiecBinarny kb;
                 for (int i = 0; i < (int)dane.size(); i++)
-                    bh.insert("e" + to_string(i), dane[i]);
-                cout << "Wypelniono BinaryHeap (" << bh.returnSize() << " elem.)\n";
-                menuBinaryHeap(bh);
+                    kb.insert(dane[i], i); // insert(int wartosc, int priorytet)
+                cout << "Wypelniono KopiecBinarny (" << kb.return_size() << " elem.)\n";
+                KopiecBinarny(kb);
             }
             continue;
         }

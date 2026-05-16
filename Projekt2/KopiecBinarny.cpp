@@ -1,11 +1,7 @@
 #include "KopiecBinarny.hpp"
 #include <stdexcept>
 
-// -----------------------------------------------------------------------
-// Konstruktory / destruktor / operatory
-// -----------------------------------------------------------------------
  
-
 KopiecBinarny::KopiecBinarny() {
     licznik = 0;
     rozmiar = 1;

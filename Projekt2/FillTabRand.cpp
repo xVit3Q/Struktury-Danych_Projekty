@@ -3,7 +3,7 @@
 #include <vector>
 
 std::vector<int> generujLosoweDane(int n, unsigned int seed) {
-    std::mt19937 rng(seed);                 // brak static → pełna kontrola
+    std::mt19937 rng(seed);                 
     std::uniform_int_distribution<int> dist(-1'000'000'000, 1'000'000'000);
 
     std::vector<int> dane;
