@@ -176,7 +176,7 @@ int main() {
                 for (int i = 0; i < (int)dane.size(); i++)
                     kb.insert(dane[i], i); // insert(int wartosc, int priorytet)
                 cout << "Wypelniono KopiecBinarny (" << kb.return_size() << " elem.)\n";
-                KopiecBinarny(kb);
+                menuKopiecBinarny(kb);
             }
             continue;
         }
