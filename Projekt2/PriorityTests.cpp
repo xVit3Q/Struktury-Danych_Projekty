@@ -16,6 +16,7 @@ using namespace std;
 
 static const vector<int> ROZMIARY = {50000, 80000, 100000, 160000, 200000, 400000, 600000, 1000000};
 static const int BLOK = 100;
+static volatile int kompilator =0;
 static long long zmierzCzas(function<void()> op) {
     auto s = chrono::high_resolution_clock::now();
     op();
@@ -55,26 +56,25 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
             long long czasFindMaxT = zmierzCzas([&](){
                 for  (int i = 0; i < BLOK; i++)
                 {
-                    ktFull.find_max();
+                    kompilator += ktFull.find_max();
                 }
             });
             wyniki.kolejkaTablica.peek += czasFindMaxT /BLOK;
             long long czasRetunSizeT = zmierzCzas([&](){
                      for  (int i = 0; i < BLOK; i++)
                 {
-                    ktFull.return_size();
+                    kompilator += ktFull.return_size();
                 }
             });
             wyniki.kolejkaTablica.returnSize += czasRetunSizeT /BLOK;
-            
+
             {
-                KolejkaTablica  ktC = ktFull;
+                KolejkaTablica ktC = ktFull;
                 wyniki.kolejkaTablica.extract += zmierzCzas([&](){
                     ktC.extract_max();
                 });
             
             }
-
 
             {
                 KolejkaTablica ktC = ktFull;
@@ -113,23 +113,22 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
             KopiecBinarny bhFull;
             for (int i = 0; i < (int)dane.size(); i++)
                 bhFull.insert(dane[i], dane[i]);
-
-                   long long czasFindMaxB = zmierzCzas([&](){
+            long long czasFindMaxB = zmierzCzas([&](){
                 for  (int i = 0; i < BLOK; i++)
                 {
-                    bhFull.find_max();
+                    kompilator += bhFull.find_max();
                 }
             });
             wyniki.kopiecBinarny.peek += czasFindMaxB /BLOK;
             long long czasRetunSizeB = zmierzCzas([&](){
                      for  (int i = 0; i < BLOK; i++)
                 {
-                    bhFull.return_size();
+                    kompilator += bhFull.return_size();
                 }
             });
             wyniki.kopiecBinarny.returnSize += czasRetunSizeB / BLOK;
             {
-                KopiecBinarny  bhC = bhFull;
+                KopiecBinarny bhC = bhFull;
                 wyniki.kopiecBinarny.extract += zmierzCzas([&](){
                     bhC.extract_max();
                 });
