@@ -15,13 +15,13 @@ std::vector<int> wczytajZPliku();
 // ---------- wyniki jednej struktury ----------
 // Trzyma sumy czasów — AVG liczone przy zapisie przez n = seedy*powtorzenia
 struct WynikiJednejStruktury {
-    long long insert      = 0;
-    long long extract     = 0;
-    long long peek        = 0;
-    long long increaseKey = 0;
-    long long decreaseKey = 0;
-    long long modifyKey   = 0;
-    long long returnSize  = 0;
+    double insert      = 0;
+    double extract     = 0;
+    double peek        = 0;
+    double increaseKey = 0;
+    double decreaseKey = 0;
+    double modifyKey   = 0;
+    double returnSize  = 0;
 
     // Zeruje wszystkie pola — wołaj przed każdym nowym rozmiarem
     void reset() {

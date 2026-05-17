@@ -136,6 +136,19 @@ void KopiecBinarny::insert(int e, int p)
     licznikKolejki++;
     heapifyUp(licznik);
 }
+//funcje w celu zmierzenia ile trwaja pojedyncze inserty bez dodawania koszty realoka
+void KopiecBinarny::reserve(int n){
+    if (n <= rozmiar) return;
+    ElementKopiec* noweDane = new ElementKopiec[n+1];
+    for (int i = 0; i <= licznik; i++)
+    {
+        noweDane[i] = dane[i];
+    }
+    delete[] dane;
+    dane = noweDane;
+    rozmiar = n;
+    
+}
 
 int KopiecBinarny::extract_max() {
     if(licznik == 0) throw std::runtime_error("Kolejka jest pusta");
@@ -144,11 +157,11 @@ int KopiecBinarny::extract_max() {
 
     dane[1] = dane[licznik];
     licznik--;
-    zmniejszRozmiar();
-
+    
     if(licznik > 0){
         heapifyDown(1);
     }
+    zmniejszRozmiar(); //realokacja po heapifydown
     return maxWartosc;
 }
 

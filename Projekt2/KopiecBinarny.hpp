@@ -38,6 +38,7 @@ public:
     KopiecBinarny& operator=(const KopiecBinarny& other);
 
     void insert(int e, int p);
+    void reserve(int n);
     int extract_max();
     int find_max() const;
     void modify_key(int e, int p);

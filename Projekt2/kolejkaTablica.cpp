@@ -91,6 +91,19 @@ void KolejkaTablica::insert(int e, int p){
     licznikKolejki++;
     licznik++;
 }
+//funcje w celu zmierzenia ile trwaja pojedyncze inserty bez dodawania koszty realoka
+void KolejkaTablica::reserve(int n){
+    if (n <= rozmiar) return;
+    Element* noweDane = new Element[n];
+    for (int i = 0; i < licznik; i++)
+    {
+        noweDane[i] = dane[i];
+    }
+    delete[] dane;
+    dane = noweDane;
+    rozmiar = n;
+    
+}
 
 int KolejkaTablica::extract_max(){
     if (licznik == 0) throw std::runtime_error("Kolejka jest pusta");
