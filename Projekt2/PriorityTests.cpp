@@ -1,10 +1,3 @@
-#include "PriorityTests.hpp"
-#include "Pomoc.hpp"
-#include "FillTabRand.hpp"
-#include "KopiecBinarny.hpp"
-#include "kolejkaTablica.hpp"
-#include "losowy.hpp"
-
 #include <iostream>
 #include <chrono>
 #include <vector>
@@ -12,12 +5,18 @@
 #include <fstream>
 #include <functional>
 
+// Założenie: nagłówki struktur są włączone prawidłowo
+#include "KopiecBinarny.hpp"
+#include "kolejkaTablica.hpp"
+#include "losowy.hpp"
+#include "Pomoc.hpp"
+#include "FillTabRand.hpp"
+
 using namespace std;
 
 static const vector<int> ROZMIARY = {50000, 80000, 100000, 160000, 200000, 400000, 600000, 1000000};
 static const int BLOK = 100;
 
-// Zapobiega optymalizacji przez kompilator dla operacji read-only
 static volatile int kompilator = 0;
 
 static long long zmierzCzas(function<void()> op) {
@@ -27,16 +26,28 @@ static long long zmierzCzas(function<void()> op) {
     return chrono::duration_cast<chrono::nanoseconds>(e - s).count();
 }
 
-// ============================================================
-// Jeden rozmiar — obie struktury
-// ============================================================
 static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
                                ofstream& out,
                                const vector<unsigned int>& seedy) {
-    WynikiStruktur wyniki; // pola double — zerowane automatycznie
+    WynikiStruktur wyniki; 
 
     for (int s = 0; s < ileSeedow; ++s) {
+        // Generujemy bazowe dane RAZ dla danego seeda
         const vector<int> dane = generujLosoweDane(rozmiar, seedy[s]);
+
+        // Tworzymy i wypełniamy struktury bazowe przed pętlą powtórzeń (Warm-up / Setup)
+        // Dzięki temu nie marnujemy czasu wewnątrz 'rep' na ponowne budowanie od zera
+        KolejkaTablica ktFull;
+        ktFull.reserve(rozmiar + 5); // zapas na testy insert
+        for (int i = 0; i < (int)dane.size(); i++) {
+            ktFull.insert(dane[i], dane[i]);
+        }
+
+        KopiecBinarny bhFull;
+        bhFull.reserve(rozmiar + 5);
+        for (int i = 0; i < (int)dane.size(); i++) {
+            bhFull.insert(dane[i], dane[i]);
+        }
 
         for (int rep = 0; rep < powtorzenia; ++rep) {
             cout << "  seed " << (s+1) << "/" << ileSeedow
@@ -44,37 +55,31 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
                  << "  rep " << (rep+1) << "/" << powtorzenia << "\r";
             cout.flush();
 
-            // Losowania wspólne dla obu struktur — te same wartości w tej samej iteracji
+            // Losowania są niezależne w KAŻDYM powtórzeniu 'rep'
             int pozycjaInc   = losujPozycje();
-            int priorytetInc = dane[pozycjaInc] + losujPriorytet(); // zawsze >= dane[pozycjaInc]
+            int priorytetInc = dane[pozycjaInc] + losujPriorytet(); 
             int pozycjaDec   = losujPozycje();
-            int priorytetDec = losujNizszyPriorytet(dane[pozycjaDec]); // >= 0, <= dane[pozycjaDec]
+            int priorytetDec = losujNizszyPriorytet(dane[pozycjaDec]); 
             int pozycjaMod   = losujPozycje();
             int priorytetMod = losujPriorytet();
 
             // ======= KolejkaTablica =======
 
-            // insert — reserve przed pomiarem eliminuje koszt realokacji
+            // Odizolowany test insert: czyste O(1) bez realokacji
             {
-                KolejkaTablica kt;
-                kt.reserve(rozmiar + 1);
-                for (int i = 0; i < (int)dane.size(); i++)
-                {
-                    kt.insert(dane[i], dane[i]);
+                KolejkaTablica ktInsertTest;
+                ktInsertTest.reserve(rozmiar + 2);
+                for (int i = 0; i < rozmiar; i++) {
+                    ktInsertTest.insert(dane[i], dane[i]);
                 }
                 int nowyElement = dane[0] + 1;
                 long long t = zmierzCzas([&]() {
-                    kt.insert(nowyElement, nowyElement);
+                    ktInsertTest.insert(nowyElement, nowyElement);
                 });
                 wyniki.kolejkaTablica.insert += static_cast<double>(t);
             }
 
-            // Pełna struktura — źródło kopii dla operacji modyfikujących
-            KolejkaTablica ktFull;
-            for (int i = 0; i < (int)dane.size(); i++)
-                ktFull.insert(dane[i], dane[i]);
-
-            // find_max — blok eliminuje fałszywe zera dla szybkich operacji
+            // find_max
             {
                 long long t = zmierzCzas([&]() {
                     for (int i = 0; i < BLOK; i++)
@@ -83,7 +88,7 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
                 wyniki.kolejkaTablica.peek += static_cast<double>(t) / BLOK;
             }
 
-            // return_size — blok eliminuje fałszywe zera
+            // return_size
             {
                 long long t = zmierzCzas([&]() {
                     for (int i = 0; i < BLOK; i++)
@@ -92,15 +97,15 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
                 wyniki.kolejkaTablica.returnSize += static_cast<double>(t) / BLOK;
             }
 
-            // extract_max — własna kopia, N elementów
+            // extract_max
             {
-                KolejkaTablica ktC = ktFull;
+                KolejkaTablica ktC = ktFull; // Kopia struktury bazowej
                 wyniki.kolejkaTablica.extract += zmierzCzas([&]() {
                     ktC.extract_max();
                 });
             }
 
-            // increase_key — własna kopia, N elementów, losowania przed pomiarem
+            // increase_key
             {
                 KolejkaTablica ktC = ktFull;
                 wyniki.kolejkaTablica.increaseKey += zmierzCzas([&]() {
@@ -108,7 +113,7 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
                 });
             }
 
-            // decrease_key — własna kopia, N elementów
+            // decrease_key
             {
                 KolejkaTablica ktC = ktFull;
                 wyniki.kolejkaTablica.decreaseKey += zmierzCzas([&]() {
@@ -116,7 +121,7 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
                 });
             }
 
-            // modify_key — własna kopia, N elementów, losowanie przed pomiarem
+            // modify_key
             {
                 KolejkaTablica ktC = ktFull;
                 wyniki.kolejkaTablica.modifyKey += zmierzCzas([&]() {
@@ -126,26 +131,21 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
 
             // ======= KopiecBinarny =======
 
-            // insert — reserve przed pomiarem eliminuje koszt realokacji
+            // insert
             {
-                KopiecBinarny bh;
-                bh.reserve(rozmiar + 1);
-                 for (int i = 0; i < (int)dane.size(); i++){
-                     bh.insert(dane[i], dane[i]);
-                 }
+                KopiecBinarny bhInsertTest;
+                bhInsertTest.reserve(rozmiar + 2);
+                for (int i = 0; i < rozmiar; i++) {
+                    bhInsertTest.insert(dane[i], dane[i]);
+                }
                 int nowyElement = dane[0] + 1;
                 long long tb = zmierzCzas([&]{
-                    bh.insert(nowyElement, nowyElement);
+                    bhInsertTest.insert(nowyElement, nowyElement);
                 });
                 wyniki.kopiecBinarny.insert += static_cast<double>(tb);
             }
 
-            // Pełna struktura — źródło kopii dla operacji modyfikujących
-            KopiecBinarny bhFull;
-            for (int i = 0; i < (int)dane.size(); i++)
-                bhFull.insert(dane[i], dane[i]);
-
-            // find_max — blok eliminuje fałszywe zera
+            // find_max
             {
                 long long t = zmierzCzas([&]() {
                     for (int i = 0; i < BLOK; i++)
@@ -154,7 +154,7 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
                 wyniki.kopiecBinarny.peek += static_cast<double>(t) / BLOK;
             }
 
-            // return_size — blok eliminuje fałszywe zera
+            // return_size
             {
                 long long t = zmierzCzas([&]() {
                     for (int i = 0; i < BLOK; i++)
@@ -163,7 +163,7 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
                 wyniki.kopiecBinarny.returnSize += static_cast<double>(t) / BLOK;
             }
 
-            // extract_max — własna kopia, N elementów
+            // extract_max
             {
                 KopiecBinarny bhC = bhFull;
                 wyniki.kopiecBinarny.extract += zmierzCzas([&]() {
@@ -171,7 +171,7 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
                 });
             }
 
-            // increase_key — własna kopia, N elementów, te same losowania co KolejkaTablica
+            // increase_key
             {
                 KopiecBinarny bhC = bhFull;
                 wyniki.kopiecBinarny.increaseKey += zmierzCzas([&]() {
@@ -179,7 +179,7 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
                 });
             }
 
-            // decrease_key — własna kopia, N elementów
+            // decrease_key
             {
                 KopiecBinarny bhC = bhFull;
                 wyniki.kopiecBinarny.decreaseKey += zmierzCzas([&]() {
@@ -187,7 +187,7 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
                 });
             }
 
-            // modify_key — własna kopia, N elementów
+            // modify_key
             {
                 KopiecBinarny bhC = bhFull;
                 wyniki.kopiecBinarny.modifyKey += zmierzCzas([&]() {
@@ -198,26 +198,25 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
         cout << "\n";
     }
 
-    // Zapis średnich — double przez całą drogę, brak ucinania ułamków
     double n = static_cast<double>(ileSeedow) * powtorzenia;
 
     auto& kt = wyniki.kolejkaTablica;
-    zapiszCsv(out, "KolejkaTablica", rozmiar, "insert",       kt.insert      / n);
-    zapiszCsv(out, "KolejkaTablica", rozmiar, "find_max",     kt.peek        / n);
-    zapiszCsv(out, "KolejkaTablica", rozmiar, "return_size",  kt.returnSize  / n);
-    zapiszCsv(out, "KolejkaTablica", rozmiar, "increase_key", kt.increaseKey / n);
-    zapiszCsv(out, "KolejkaTablica", rozmiar, "decrease_key", kt.decreaseKey / n);
-    zapiszCsv(out, "KolejkaTablica", rozmiar, "modify_key",   kt.modifyKey   / n);
-    zapiszCsv(out, "KolejkaTablica", rozmiar, "extract_max",  kt.extract     / n);
+    zapiszCsv(out, "KolejkaTablica", rozmiar, "insert",       kt.insert       / n);
+    zapiszCsv(out, "KolejkaTablica", rozmiar, "find_max",     kt.peek         / n);
+    zapiszCsv(out, "KolejkaTablica", rozmiar, "return_size",  kt.returnSize   / n);
+    zapiszCsv(out, "KolejkaTablica", rozmiar, "increase_key", kt.increaseKey  / n);
+    zapiszCsv(out, "KolejkaTablica", rozmiar, "decrease_key", kt.decreaseKey  / n);
+    zapiszCsv(out, "KolejkaTablica", rozmiar, "modify_key",   kt.modifyKey    / n);
+    zapiszCsv(out, "KolejkaTablica", rozmiar, "extract_max",  kt.extract      / n);
 
     auto& bh = wyniki.kopiecBinarny;
-    zapiszCsv(out, "KopiecBinarny", rozmiar, "insert",       bh.insert      / n);
-    zapiszCsv(out, "KopiecBinarny", rozmiar, "find_max",     bh.peek        / n);
-    zapiszCsv(out, "KopiecBinarny", rozmiar, "return_size",  bh.returnSize  / n);
-    zapiszCsv(out, "KopiecBinarny", rozmiar, "increase_key", bh.increaseKey / n);
-    zapiszCsv(out, "KopiecBinarny", rozmiar, "decrease_key", bh.decreaseKey / n);
-    zapiszCsv(out, "KopiecBinarny", rozmiar, "modify_key",   bh.modifyKey   / n);
-    zapiszCsv(out, "KopiecBinarny", rozmiar, "extract_max",  bh.extract     / n);
+    zapiszCsv(out, "KopiecBinarny", rozmiar, "insert",       bh.insert       / n);
+    zapiszCsv(out, "KopiecBinarny", rozmiar, "find_max",     bh.peek         / n);
+    zapiszCsv(out, "KopiecBinarny", rozmiar, "return_size",  bh.returnSize   / n);
+    zapiszCsv(out, "KopiecBinarny", rozmiar, "increase_key", bh.increaseKey  / n);
+    zapiszCsv(out, "KopiecBinarny", rozmiar, "decrease_key", bh.decreaseKey  / n);
+    zapiszCsv(out, "KopiecBinarny", rozmiar, "modify_key",   bh.modifyKey    / n);
+    zapiszCsv(out, "KopiecBinarny", rozmiar, "extract_max",  bh.extract      / n);
 }
 
 void testujRozmiar(int rozmiar, int powtorzenia, int ileSeedow,

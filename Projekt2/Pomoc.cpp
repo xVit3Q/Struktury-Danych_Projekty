@@ -6,7 +6,7 @@ using namespace std;
 
 // ---------- narzędzia ogólne ----------
 void zapiszCsv(ofstream& plik, const string& algorytm, int rozmiar,
-               const string& typDanych, long long ns) 
+               const string& typDanych, double ns) 
 {
     double ms = ns / 1'000'000.0;
     plik << algorytm << "," 

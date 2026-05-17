@@ -40,15 +40,15 @@ KolejkaTablica& KolejkaTablica::operator=(const KolejkaTablica& other) {
     return *this;
 }
 
-void KolejkaTablica::zwiekszRozmiar(){
-    if(licznik >= rozmiar) {
-        rozmiar *= 2;//zwiekszenie rozmiaru o połowę
-        Element* noweDane = new Element[rozmiar];//nowa tablica
-        for(int i=0; i<licznik; i++){
-            noweDane[i] = dane[i];//przerzucenie danych do nowej tablicy
+void KolejkaTablica::zwiekszRozmiar() {
+    if (licznik >= rozmiar) {
+        rozmiar = (rozmiar == 0) ? 1 : rozmiar * 2;
+        Element* noweDane = new Element[rozmiar];
+        for (int i = 0; i < licznik; i++) {
+            noweDane[i] = dane[i];
         }
-        delete[] dane;//usuniecie starej tablicy
-        dane = noweDane;//podpiecie nowego wskaznika
+        delete[] dane;
+        dane = noweDane;
     } 
 }
 void KolejkaTablica::zmniejszRozmiar(){
@@ -85,33 +85,34 @@ int KolejkaTablica::znajdzIndeksMax() const{
     return maxIndeks;
 }
 
-void KolejkaTablica::insert(int e, int p){
-    zwiekszRozmiar();
-    dane[licznik]=Element(e, p, licznikKolejki);
+void KolejkaTablica::insert(int e, int p) {
+    zwiekszRozmiar(); // Wywoła alokację TYLKO jeśli przekroczymy bezpieczny próg 'rozmiar'
+    dane[licznik] = Element(e, p, licznikKolejki);
     licznikKolejki++;
     licznik++;
 }
 //funcje w celu zmierzenia ile trwaja pojedyncze inserty bez dodawania koszty realoka
-void KolejkaTablica::reserve(int n){
+void KolejkaTablica::reserve(int n) {
     if (n <= rozmiar) return;
     Element* noweDane = new Element[n];
-    for (int i = 0; i < licznik; i++)
-    {
+    for (int i = 0; i < licznik; i++) {
         noweDane[i] = dane[i];
     }
     delete[] dane;
     dane = noweDane;
     rozmiar = n;
-    
 }
 
-int KolejkaTablica::extract_max(){
+int KolejkaTablica::extract_max() {
     if (licznik == 0) throw std::runtime_error("Kolejka jest pusta");
     
     int maxIndeks = znajdzIndeksMax();
     int maxWartosc = dane[maxIndeks].wartosc;
 
-    dane[maxIndeks] = dane[licznik - 1]; 
+    // Przeniesienie ostatniego elementu w miejsce usuniętego
+    if (maxIndeks != licznik - 1) {
+        dane[maxIndeks] = dane[licznik - 1]; 
+    }
     
     licznik--;
     zmniejszRozmiar();

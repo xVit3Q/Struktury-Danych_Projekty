@@ -9,7 +9,7 @@
 void logujWynik(const std::string& opis, long long ns);
 void zapiszDoPliku(const std::vector<int>& dane);
 void zapiszCsv(std::ofstream& plik, const std::string& struktura,
-               int rozmiar, const std::string& operacja, long long ns);
+               int rozmiar, const std::string& operacja, double ns);
 std::vector<int> wczytajZPliku();
 
 // ---------- wyniki jednej struktury ----------
