@@ -1,3 +1,10 @@
+#include "PriorityTests.hpp"
+#include "Pomoc.hpp"
+#include "FillTabRand.hpp"
+#include "KopiecBinarny.hpp"
+#include "kolejkaTablica.hpp"
+#include "losowy.hpp"
+
 #include <iostream>
 #include <chrono>
 #include <vector>
@@ -5,20 +12,11 @@
 #include <fstream>
 #include <functional>
 
-// Założenie: nagłówki struktur są włączone prawidłowo
-#include "KopiecBinarny.hpp"
-#include "kolejkaTablica.hpp"
-#include "losowy.hpp"
-#include "Pomoc.hpp"
-#include "FillTabRand.hpp"
-
 using namespace std;
 
 static const vector<int> ROZMIARY = {50000, 80000, 100000, 160000, 200000, 400000, 600000, 1000000};
 static const int BLOK = 100;
-
-static volatile int kompilator = 0;
-
+static volatile int kompilator =0;
 static long long zmierzCzas(function<void()> op) {
     auto s = chrono::high_resolution_clock::now();
     op();
@@ -26,185 +24,164 @@ static long long zmierzCzas(function<void()> op) {
     return chrono::duration_cast<chrono::nanoseconds>(e - s).count();
 }
 
+// ============================================================
+// Jeden rozmiar — obie struktury
+// ============================================================
 static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
                                ofstream& out,
                                const vector<unsigned int>& seedy) {
-    WynikiStruktur wyniki; 
+    WynikiStruktur wyniki;
 
     for (int s = 0; s < ileSeedow; ++s) {
-        // Generujemy bazowe dane RAZ dla danego seeda
         const vector<int> dane = generujLosoweDane(rozmiar, seedy[s]);
-
-        // Tworzymy i wypełniamy struktury bazowe przed pętlą powtórzeń (Warm-up / Setup)
-        // Dzięki temu nie marnujemy czasu wewnątrz 'rep' na ponowne budowanie od zera
-        KolejkaTablica ktFull;
-        for (int i = 0; i < (int)dane.size(); i++)
-            ktFull.insert(dane[i], dane[i]);
-
-        KopiecBinarny bhFull;
-        for (int i = 0; i < (int)dane.size(); i++)
-            bhFull.insert(dane[i], dane[i]);
 
         for (int rep = 0; rep < powtorzenia; ++rep) {
             cout << "  seed " << (s+1) << "/" << ileSeedow
                  << "  rozmiar " << rozmiar
                  << "  rep " << (rep+1) << "/" << powtorzenia << "\r";
-            cout.flush();
-
-            // Losowania są niezależne w KAŻDYM powtórzeniu 'rep'
-            int pozycjaInc   = losujPozycje();
-            int priorytetInc = dane[pozycjaInc] + losujPriorytet();
-            int pozycjaDec   = losujPozycje();
-            int priorytetDec = losujNizszyPriorytet(dane[pozycjaDec]);
-            int pozycjaMod   = losujPozycje();
-            int priorytetMod = losujPriorytet();
 
             // ======= KolejkaTablica =======
-
-            // Odizolowany test insert: czyste O(1) bez realokacji
             {
-               KolejkaTablica ktC = ktFull;
-                int nowyElement = dane[0] + 1;
-                double t = zmierzCzas([&]() {
-                    ktC.insert(nowyElement, nowyElement);
+                KolejkaTablica kt;
+                long long t = zmierzCzas([&]() {
+                    for (int i = 0; i < (int)dane.size(); i++)
+                        kt.insert(dane[i], dane[i]);
                 });
-                wyniki.kolejkaTablica.insert += static_cast<double>(t);
+                wyniki.kolejkaTablica.insert += t;
             }
+            KolejkaTablica ktFull;
+            for (int i = 0; i < (int)dane.size(); i++)
+                ktFull.insert(dane[i], dane[i]);
 
-            // find_max
-            {
-                double t = zmierzCzas([&]() {
-                    for (int i = 0; i < BLOK; i++)
-                        kompilator += ktFull.find_max();
-                });
-                wyniki.kolejkaTablica.peek += static_cast<double>(t) / BLOK;
-            }
+            long long czasFindMaxT = zmierzCzas([&](){
+                for  (int i = 0; i < BLOK; i++)
+                {
+                    kompilator += ktFull.find_max();
+                }
+            });
+            wyniki.kolejkaTablica.peek += czasFindMaxT;
+            long long czasRetunSizeT = zmierzCzas([&](){
+                     for  (int i = 0; i < BLOK; i++)
+                {
+                    kompilator += ktFull.return_size();
+                }
+            });
+            wyniki.kolejkaTablica.returnSize += czasRetunSizeT;
 
-            // return_size
             {
-                double t = zmierzCzas([&]() {
-                    for (int i = 0; i < BLOK; i++)
-                        kompilator += ktFull.return_size();
-                });
-                wyniki.kolejkaTablica.returnSize += static_cast<double>(t) / BLOK;
-            }
-
-            // extract_max
-            {
-                KolejkaTablica ktC = ktFull; // Kopia struktury bazowej
-                wyniki.kolejkaTablica.extract += zmierzCzas([&]() {
+                KolejkaTablica ktC = ktFull;
+                wyniki.kolejkaTablica.extract += zmierzCzas([&](){
                     ktC.extract_max();
                 });
+            
             }
 
-            // increase_key
             {
                 KolejkaTablica ktC = ktFull;
+                int wartosc = dane[losujPozycje()];
+                int nowePrio = wartosc + losujPriorytet(); // zawsze >= wartosc, czyli >= 0
                 wyniki.kolejkaTablica.increaseKey += zmierzCzas([&]() {
-                    ktC.increase_key(dane[pozycjaInc], priorytetInc);
+                    ktC.increase_key(wartosc, nowePrio);
                 });
             }
-
-            // decrease_key
             {
                 KolejkaTablica ktC = ktFull;
+                int wartosc = dane[losujPozycje()];
+                int nowePrio = losujNizszyPriorytet(wartosc); 
                 wyniki.kolejkaTablica.decreaseKey += zmierzCzas([&]() {
-                    ktC.decrease_key(dane[pozycjaDec], priorytetDec);
+                    ktC.decrease_key(wartosc, nowePrio);
                 });
             }
-
-            // modify_key
             {
                 KolejkaTablica ktC = ktFull;
+                int wartosc = dane[losujPozycje()];
                 wyniki.kolejkaTablica.modifyKey += zmierzCzas([&]() {
-                    ktC.modify_key(dane[pozycjaMod], priorytetMod);
+                    ktC.modify_key(wartosc, losujPriorytet()); // dowolny nowy priorytet
                 });
             }
 
             // ======= KopiecBinarny =======
-
-            // insert
-           {
-                KopiecBinarny bhC = bhFull;
-                int nowyElement = dane[0] + 1;
-                double t = zmierzCzas([&]() {
-                    bhC.insert(nowyElement, nowyElement);
-                });
-                wyniki.kopiecBinarny.insert += static_cast<double>(t);
-            }
-
-            // find_max
             {
-                double t = zmierzCzas([&]() {
-                    for (int i = 0; i < BLOK; i++)
-                        kompilator += bhFull.find_max();
+                KopiecBinarny bh;
+                long long tb = zmierzCzas([&]() {
+                    for (int i = 0; i < (int)dane.size(); i++)
+                        bh.insert(dane[i], dane[i]);
                 });
-                wyniki.kopiecBinarny.peek += static_cast<double>(t) / BLOK;
+                wyniki.kopiecBinarny.insert += tb;
             }
 
-            // return_size
-            {
-                double t = zmierzCzas([&]() {
-                    for (int i = 0; i < BLOK; i++)
-                        kompilator += bhFull.return_size();
-                });
-                wyniki.kopiecBinarny.returnSize += static_cast<double>(t) / BLOK;
-            }
-
-            // extract_max
+            KopiecBinarny bhFull;
+            for (int i = 0; i < (int)dane.size(); i++)
+                bhFull.insert(dane[i], dane[i]);
+            long long czasFindMaxB = zmierzCzas([&](){
+                for  (int i = 0; i < BLOK; i++)
+                {
+                    kompilator += bhFull.find_max();
+                }
+            });
+            wyniki.kopiecBinarny.peek += czasFindMaxB;
+            long long czasRetunSizeB = zmierzCzas([&](){
+                     for  (int i = 0; i < BLOK; i++)
+                {
+                    kompilator += bhFull.return_size();
+                }
+            });
+            wyniki.kopiecBinarny.returnSize += czasRetunSizeB;
             {
                 KopiecBinarny bhC = bhFull;
-                wyniki.kopiecBinarny.extract += zmierzCzas([&]() {
+                wyniki.kopiecBinarny.extract += zmierzCzas([&](){
                     bhC.extract_max();
                 });
+            
             }
 
-            // increase_key
             {
                 KopiecBinarny bhC = bhFull;
+                int wartosc = dane[losujPozycje()];
+                int nowePrio = wartosc + losujPriorytet(); // zawsze >= wartosc
                 wyniki.kopiecBinarny.increaseKey += zmierzCzas([&]() {
-                    bhC.increase_key(dane[pozycjaInc], priorytetInc);
+                    bhC.increase_key(wartosc, nowePrio);
                 });
             }
-
-            // decrease_key
             {
                 KopiecBinarny bhC = bhFull;
+                int wartosc = dane[losujPozycje()];
+                int nowePrio = losujNizszyPriorytet(wartosc); // >= 0
                 wyniki.kopiecBinarny.decreaseKey += zmierzCzas([&]() {
-                    bhC.decrease_key(dane[pozycjaDec], priorytetDec);
+                    bhC.decrease_key(wartosc, nowePrio);
                 });
             }
-
-            // modify_key
             {
                 KopiecBinarny bhC = bhFull;
+                int wartosc = dane[losujPozycje()];
                 wyniki.kopiecBinarny.modifyKey += zmierzCzas([&]() {
-                    bhC.modify_key(dane[pozycjaMod], priorytetMod);
+                    bhC.modify_key(wartosc, losujPriorytet());
                 });
             }
         }
         cout << "\n";
     }
 
-    double n = static_cast<double>(ileSeedow) * powtorzenia;
+    // Zapis średnich
+    long long n = (long long)ileSeedow * powtorzenia;
 
     auto& kt = wyniki.kolejkaTablica;
-    zapiszCsv(out, "KolejkaTablica", rozmiar, "insert",       kt.insert       / n);
-    zapiszCsv(out, "KolejkaTablica", rozmiar, "find_max",     kt.peek         / n);
-    zapiszCsv(out, "KolejkaTablica", rozmiar, "return_size",  kt.returnSize   / n);
-    zapiszCsv(out, "KolejkaTablica", rozmiar, "increase_key", kt.increaseKey  / n);
-    zapiszCsv(out, "KolejkaTablica", rozmiar, "decrease_key", kt.decreaseKey  / n);
-    zapiszCsv(out, "KolejkaTablica", rozmiar, "modify_key",   kt.modifyKey    / n);
-    zapiszCsv(out, "KolejkaTablica", rozmiar, "extract_max",  kt.extract      / n);
+    zapiszCsv(out, "KolejkaTablica", rozmiar, "insert",       (double)kt.insert      / (n * rozmiar));
+    zapiszCsv(out, "KolejkaTablica", rozmiar, "find_max",     (double)kt.peek        / (n * BLOK));
+    zapiszCsv(out, "KolejkaTablica", rozmiar, "return_size",  (double)kt.returnSize  / (n * BLOK));
+    zapiszCsv(out, "KolejkaTablica", rozmiar, "increase_key", (double)kt.increaseKey / n);
+    zapiszCsv(out, "KolejkaTablica", rozmiar, "decrease_key", (double)kt.decreaseKey / n);
+    zapiszCsv(out, "KolejkaTablica", rozmiar, "modify_key",   (double)kt.modifyKey   / n);
+    zapiszCsv(out, "KolejkaTablica", rozmiar, "extract_max",  (double)kt.extract     / n);
 
     auto& bh = wyniki.kopiecBinarny;
-    zapiszCsv(out, "KopiecBinarny", rozmiar, "insert",       bh.insert       / n);
-    zapiszCsv(out, "KopiecBinarny", rozmiar, "find_max",     bh.peek         / n);
-    zapiszCsv(out, "KopiecBinarny", rozmiar, "return_size",  bh.returnSize   / n);
-    zapiszCsv(out, "KopiecBinarny", rozmiar, "increase_key", bh.increaseKey  / n);
-    zapiszCsv(out, "KopiecBinarny", rozmiar, "decrease_key", bh.decreaseKey  / n);
-    zapiszCsv(out, "KopiecBinarny", rozmiar, "modify_key",   bh.modifyKey    / n);
-    zapiszCsv(out, "KopiecBinarny", rozmiar, "extract_max",  bh.extract      / n);
+    zapiszCsv(out, "KopiecBinarny", rozmiar, "insert",       (double)bh.insert      / (n * rozmiar));
+    zapiszCsv(out, "KopiecBinarny", rozmiar, "find_max",     (double)bh.peek        / (n * BLOK));
+    zapiszCsv(out, "KopiecBinarny", rozmiar, "return_size",  (double)bh.returnSize  / (n * BLOK));
+    zapiszCsv(out, "KopiecBinarny", rozmiar, "increase_key", (double)bh.increaseKey / n);
+    zapiszCsv(out, "KopiecBinarny", rozmiar, "decrease_key", (double)bh.decreaseKey / n);
+    zapiszCsv(out, "KopiecBinarny", rozmiar, "modify_key",   (double)bh.modifyKey   / n);
+    zapiszCsv(out, "KopiecBinarny", rozmiar, "extract_max",  (double)bh.extract     / n);
 }
 
 void testujRozmiar(int rozmiar, int powtorzenia, int ileSeedow,
