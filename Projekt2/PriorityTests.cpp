@@ -38,16 +38,12 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
         // Tworzymy i wypełniamy struktury bazowe przed pętlą powtórzeń (Warm-up / Setup)
         // Dzięki temu nie marnujemy czasu wewnątrz 'rep' na ponowne budowanie od zera
         KolejkaTablica ktFull;
-        ktFull.reserve(rozmiar + 5); // zapas na testy insert
-        for (int i = 0; i < (int)dane.size(); i++) {
+        for (int i = 0; i < (int)dane.size(); i++)
             ktFull.insert(dane[i], dane[i]);
-        }
 
         KopiecBinarny bhFull;
-        bhFull.reserve(rozmiar + 5);
-        for (int i = 0; i < (int)dane.size(); i++) {
+        for (int i = 0; i < (int)dane.size(); i++)
             bhFull.insert(dane[i], dane[i]);
-        }
 
         for (int rep = 0; rep < powtorzenia; ++rep) {
             cout << "  seed " << (s+1) << "/" << ileSeedow
@@ -57,9 +53,9 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
 
             // Losowania są niezależne w KAŻDYM powtórzeniu 'rep'
             int pozycjaInc   = losujPozycje();
-            int priorytetInc = dane[pozycjaInc] + losujPriorytet(); 
+            int priorytetInc = dane[pozycjaInc] + losujPriorytet();
             int pozycjaDec   = losujPozycje();
-            int priorytetDec = losujNizszyPriorytet(dane[pozycjaDec]); 
+            int priorytetDec = losujNizszyPriorytet(dane[pozycjaDec]);
             int pozycjaMod   = losujPozycje();
             int priorytetMod = losujPriorytet();
 
@@ -67,21 +63,17 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
 
             // Odizolowany test insert: czyste O(1) bez realokacji
             {
-                KolejkaTablica ktInsertTest;
-                ktInsertTest.reserve(rozmiar + 2);
-                for (int i = 0; i < rozmiar; i++) {
-                    ktInsertTest.insert(dane[i], dane[i]);
-                }
+               KolejkaTablica ktC = ktFull;
                 int nowyElement = dane[0] + 1;
-                long long t = zmierzCzas([&]() {
-                    ktInsertTest.insert(nowyElement, nowyElement);
+                double t = zmierzCzas([&]() {
+                    ktC.insert(nowyElement, nowyElement);
                 });
                 wyniki.kolejkaTablica.insert += static_cast<double>(t);
             }
 
             // find_max
             {
-                long long t = zmierzCzas([&]() {
+                double t = zmierzCzas([&]() {
                     for (int i = 0; i < BLOK; i++)
                         kompilator += ktFull.find_max();
                 });
@@ -90,7 +82,7 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
 
             // return_size
             {
-                long long t = zmierzCzas([&]() {
+                double t = zmierzCzas([&]() {
                     for (int i = 0; i < BLOK; i++)
                         kompilator += ktFull.return_size();
                 });
@@ -132,22 +124,18 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
             // ======= KopiecBinarny =======
 
             // insert
-            {
-                KopiecBinarny bhInsertTest;
-                bhInsertTest.reserve(rozmiar + 2);
-                for (int i = 0; i < rozmiar; i++) {
-                    bhInsertTest.insert(dane[i], dane[i]);
-                }
+           {
+                KopiecBinarny bhC = bhFull;
                 int nowyElement = dane[0] + 1;
-                long long tb = zmierzCzas([&]{
-                    bhInsertTest.insert(nowyElement, nowyElement);
+                double t = zmierzCzas([&]() {
+                    bhC.insert(nowyElement, nowyElement);
                 });
-                wyniki.kopiecBinarny.insert += static_cast<double>(tb);
+                wyniki.kopiecBinarny.insert += static_cast<double>(t);
             }
 
             // find_max
             {
-                long long t = zmierzCzas([&]() {
+                double t = zmierzCzas([&]() {
                     for (int i = 0; i < BLOK; i++)
                         kompilator += bhFull.find_max();
                 });
@@ -156,7 +144,7 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
 
             // return_size
             {
-                long long t = zmierzCzas([&]() {
+                double t = zmierzCzas([&]() {
                     for (int i = 0; i < BLOK; i++)
                         kompilator += bhFull.return_size();
                 });

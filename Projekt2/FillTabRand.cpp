@@ -4,7 +4,9 @@
 
 std::vector<int> generujLosoweDane(int n, unsigned int seed) {
     std::mt19937 rng(seed);                 
-    std::uniform_int_distribution<int> dist(-1'000'000'000, 1'000'000'000);
+    // ZMIANA: Zakres losowania zależy teraz bezpośrednio od rozmiaru n
+    // Losujemy liczby od 0 do n, dzięki czemu dystrybucja wartości jest spójna
+    std::uniform_int_distribution<int> dist(0, n);
 
     std::vector<int> dane;
     dane.reserve(n);
@@ -17,12 +19,12 @@ std::vector<int> generujLosoweDane(int n, unsigned int seed) {
 }
 
 std::vector<unsigned int> generujSeedy(int ile) {
-    std::random_device rd;                  // prawdziwa entropia
+    std::random_device rd;                  
     std::vector<unsigned int> seedy;
     seedy.reserve(ile);
 
     for (int i = 0; i < ile; i++) {
-        seedy.push_back(rd());              // każdy seed inny
+        seedy.push_back(rd());              
     }
 
     return seedy;

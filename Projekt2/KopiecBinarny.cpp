@@ -159,30 +159,15 @@ int KopiecBinarny::find_max() const {
     return dane[1].wartosc;
 }
 
-void KopiecBinarny::modify_key(int e, int p) {
-    for (int i = 1; i <= licznik; i++) {
-        if (dane[i].wartosc == e) {
-            int starePrio = dane[i].priorytet;
-            dane[i].priorytet = p;
-
-            if (p > starePrio) {
-                heapifyUp(i);
-            } else if (p < starePrio) {
-                heapifyDown(i);
-            }
-            return;
-        }
-    }
-}
-
 void KopiecBinarny::increase_key(int e, int p) {
     for (int i = 1; i <= licznik; i++) {
         if (dane[i].wartosc == e) {
+            // Znaleźliśmy pierwszy (najwcześniejszy w strukturze kopca) element o tej wartości
             if (p > dane[i].priorytet) {
                 dane[i].priorytet = p;
                 heapifyUp(i);
             }
-            return;
+            return; // ZAWSZE przerywamy po znalezieniu pasującej wartości 'e', nie idziemy dalej!
         }
     }
 }
@@ -190,10 +175,25 @@ void KopiecBinarny::increase_key(int e, int p) {
 void KopiecBinarny::decrease_key(int e, int p) {
     for (int i = 1; i <= licznik; i++) {
         if (dane[i].wartosc == e) {
+            // Znaleźliśmy pierwszy element o tej wartości
             if (p < dane[i].priorytet) {
                 dane[i].priorytet = p;
                 heapifyDown(i);
             }
+            return; // ZAWSZE przerywamy po znalezieniu pasującej wartości 'e'
+        }
+    }
+}
+
+void KopiecBinarny::modify_key(int e, int p) {
+    for (int i = 1; i <= licznik; i++) {
+        if (dane[i].wartosc == e) {
+            int starePrio = dane[i].priorytet;
+            dane[i].priorytet = p;
+            if (p > starePrio)
+                heapifyUp(i);
+            else if (p < starePrio)
+                heapifyDown(i);
             return;
         }
     }
