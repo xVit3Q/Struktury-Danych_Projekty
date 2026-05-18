@@ -43,14 +43,14 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
                 //kt.reserve(rozmiar);
                 long long t = zmierzCzas([&]() {
                     for (int i = 0; i < (int)dane.size(); i++)
-                        kt.insert(dane[i], dane[i]);
+                        kt.insert(dane[i], losujPriorytet());
                 });
                 wyniki.kolejkaTablica.insert += t;
             }
             
             KolejkaTablica ktFull;
             for (int i = 0; i < (int)dane.size(); i++)
-                ktFull.insert(dane[i], dane[i]);
+                ktFull.insert(dane[i], losujPriorytet());
 
             long long czasFindMaxT = zmierzCzas([&](){
                 for (int i = 0; i < BLOK; i++)
@@ -68,7 +68,7 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
             });
             wyniki.kolejkaTablica.returnSize += czasRetunSizeT;
 
-            // --- KOLEJKA TABLICA: extract_max (Kopie) ---
+            // --- KOLEJKA TABLICA: extract_max ---
             {
                 KolejkaTablica* kopieKT = new KolejkaTablica[BLOK];
                 for (int i = 0; i < BLOK; i++) {
@@ -82,7 +82,7 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
                 delete[] kopieKT;
             }
 
-            // --- KOLEJKA TABLICA: increase_key (Kopie) ---
+            // --- KOLEJKA TABLICA: increase_key ---
             {
                 KolejkaTablica* kopieKT = new KolejkaTablica[BLOK];
                 for (int i = 0; i < BLOK; i++) {
@@ -99,7 +99,7 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
                 delete[] kopieKT;
             }
 
-            // --- KOLEJKA TABLICA: decrease_key (Kopie) ---
+            // --- KOLEJKA TABLICA: decrease_key ---
             {
                 KolejkaTablica* kopieKT = new KolejkaTablica[BLOK];
                 for (int i = 0; i < BLOK; i++) {
@@ -116,7 +116,7 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
                 delete[] kopieKT;
             }
 
-            // --- KOLEJKA TABLICA: modify_key (Kopie) ---
+            // --- KOLEJKA TABLICA: modify_key ---
             {
                 KolejkaTablica* kopieKT = new KolejkaTablica[BLOK];
                 for (int i = 0; i < BLOK; i++) {
@@ -138,14 +138,14 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
                 //bh.reserve(rozmiar);
                 long long tb = zmierzCzas([&]() {
                     for (int i = 0; i < (int)dane.size(); i++)
-                        bh.insert(dane[i], dane[i]);
+                        bh.insert(dane[i], losujPriorytet());
                 });
                 wyniki.kopiecBinarny.insert += tb;
             }
 
             KopiecBinarny bhFull;
             for (int i = 0; i < (int)dane.size(); i++)
-                bhFull.insert(dane[i], dane[i]);
+                bhFull.insert(dane[i], losujPriorytet());
 
             long long czasFindMaxB = zmierzCzas([&](){
                 for (int i = 0; i < BLOK; i++)
@@ -163,7 +163,7 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
             });
             wyniki.kopiecBinarny.returnSize += czasRetunSizeB;
             
-            // --- KOPIEC BINARNY: extract_max (Kopie) ---
+            // --- KOPIEC BINARNY: extract_max ---
             {
                 KopiecBinarny* kopieBH = new KopiecBinarny[BLOK];
                 for (int i = 0; i < BLOK; i++) {
@@ -177,7 +177,7 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
                 delete[] kopieBH;
             }
 
-            // --- KOPIEC BINARNY: increase_key (Kopie) ---
+            // --- KOPIEC BINARNY: increase_key ---
             {
                 KopiecBinarny* kopieBH = new KopiecBinarny[BLOK];
                 for (int i = 0; i < BLOK; i++) {
@@ -194,7 +194,7 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
                 delete[] kopieBH;
             }
 
-            // --- KOPIEC BINARNY: decrease_key (Kopie) ---
+            // --- KOPIEC BINARNY: decrease_key ---
             {
                 KopiecBinarny* kopieBH = new KopiecBinarny[BLOK];
                 for (int i = 0; i < BLOK; i++) {
@@ -211,7 +211,7 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
                 delete[] kopieBH;
             }
 
-            // --- KOPIEC BINARNY: modify_key (Kopie) ---
+            // --- KOPIEC BINARNY: modify_key ---
             {
                 KopiecBinarny* kopieBH = new KopiecBinarny[BLOK];
                 for (int i = 0; i < BLOK; i++) {
