@@ -2,8 +2,8 @@
 #include <cmath>
 
 TablicaCuckoo::TablicaCuckoo(){
-    licznik=0;
-    rozmiar=1;
+    licznik = 0;
+    rozmiar = 1;
     tablica1 = new ElementCuckoo[rozmiar];
     tablica2 = new ElementCuckoo[rozmiar];
 }
@@ -18,7 +18,7 @@ TablicaCuckoo::TablicaCuckoo(const TablicaCuckoo& other){
     rozmiar = other.rozmiar;
     tablica1 = new ElementCuckoo[rozmiar];
     tablica2 = new ElementCuckoo[rozmiar];
-    for(int i=0;i<rozmiar;i++){
+    for(int i = 0; i < rozmiar; i++){
         tablica1[i] = other.tablica1[i];
         tablica2[i] = other.tablica2[i];
     }
@@ -30,7 +30,7 @@ TablicaCuckoo& TablicaCuckoo::operator=(const TablicaCuckoo& other){
     }
     ElementCuckoo* nowaTablica1 = new ElementCuckoo[other.rozmiar];
     ElementCuckoo* nowaTablica2 = new ElementCuckoo[other.rozmiar];
-    for(int i=0;i<other.rozmiar;i++){
+    for(int i = 0; i < other.rozmiar; i++){
         nowaTablica1[i] = other.tablica1[i];
         nowaTablica2[i] = other.tablica2[i];
     }
@@ -49,8 +49,11 @@ TablicaCuckoo& TablicaCuckoo::operator=(const TablicaCuckoo& other){
 int TablicaCuckoo::funkcjaMieszajaca1(int klucz) const {
     return (std::abs(klucz) % rozmiar);
 }
-int TablicaCuckoo::funkcjaMieszajaca1(int klucz) const {
-    return ((std::abs(klucz)/rozmiar) % rozmiar);
+int TablicaCuckoo::funkcjaMieszajaca2(int klucz) const {
+    double A = 1.618033; // Przybliżenie złotej proporcji (Haszowanie Fibonacciego)
+    double iloczyn = std::abs(klucz) * A;
+    double czesc_ulamkowa = iloczyn - static_cast<long long>(iloczyn);
+    return static_cast<int>(czesc_ulamkowa * rozmiar);
 }
 
 void TablicaCuckoo::rehash(int nowyRozmiar) {
@@ -76,7 +79,7 @@ void TablicaCuckoo::rehash(int nowyRozmiar) {
 }
 
 void TablicaCuckoo::zwiekszRozmiar() {
-    if (licznik >= rozmiar) {
+    if (licznik >= rozmiar * 0.5) {
         int nowyRozmiar;
         if (rozmiar == 0) {
             nowyRozmiar = 1;
@@ -89,7 +92,7 @@ void TablicaCuckoo::zwiekszRozmiar() {
 
 void TablicaCuckoo::zmniejszRozmiar() {
     int staryRozmiar = rozmiar;
-    while (licznik > 0 && licznik <= (rozmiar * 2) / 4 && rozmiar > 1) {
+    while (licznik > 0 && licznik <= rozmiar / 4 && rozmiar > 1) {
         rozmiar /= 2;
     }
 
@@ -184,5 +187,4 @@ void TablicaCuckoo::remove(int klucz) {
         zmniejszRozmiar();
         return;
     }
-    return;
 }
