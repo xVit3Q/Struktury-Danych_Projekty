@@ -1,7 +1,7 @@
 #ifndef TABLICACUKCOO_HPP
 #define TABLICACUKCOO_HPP
 
-struct Element {
+struct ElementCuckoo {
     int klucz;
     int wartosc;
     bool zajeta = false;
@@ -9,8 +9,8 @@ struct Element {
 
 class TablicaCuckoo {
 private:
-    Element* tablica1;
-    Element* tablica2;
+    ElementCuckoo* tablica1;
+    ElementCuckoo* tablica2;
     int licznik;
     int rozmiar;
 

@@ -4,8 +4,8 @@
 TablicaCuckoo::TablicaCuckoo(){
     licznik=0;
     rozmiar=1;
-    tablica1 = new Element[rozmiar];
-    tablica2 = new Element[rozmiar];
+    tablica1 = new ElementCuckoo[rozmiar];
+    tablica2 = new ElementCuckoo[rozmiar];
 }
 
 TablicaCuckoo::~TablicaCuckoo(){
@@ -16,8 +16,8 @@ TablicaCuckoo::~TablicaCuckoo(){
 TablicaCuckoo::TablicaCuckoo(const TablicaCuckoo& other){
     licznik = other.licznik;
     rozmiar = other.rozmiar;
-    tablica1 = new Element[rozmiar];
-    tablica2 = new Element[rozmiar];
+    tablica1 = new ElementCuckoo[rozmiar];
+    tablica2 = new ElementCuckoo[rozmiar];
     for(int i=0;i<rozmiar;i++){
         tablica1[i] = other.tablica1[i];
         tablica2[i] = other.tablica2[i];
@@ -28,8 +28,8 @@ TablicaCuckoo& TablicaCuckoo::operator=(const TablicaCuckoo& other){
     if(this == &other){
         return *this;
     }
-    Element* nowaTablica1 = new Element[other.rozmiar];
-    Element* nowaTablica2 = new Element[other.rozmiar];
+    ElementCuckoo* nowaTablica1 = new ElementCuckoo[other.rozmiar];
+    ElementCuckoo* nowaTablica2 = new ElementCuckoo[other.rozmiar];
     for(int i=0;i<other.rozmiar;i++){
         nowaTablica1[i] = other.tablica1[i];
         nowaTablica2[i] = other.tablica2[i];
@@ -46,21 +46,21 @@ TablicaCuckoo& TablicaCuckoo::operator=(const TablicaCuckoo& other){
     return *this;
 }
 
-int TablicaCuckoo::funkcjaMieszajaca1(int klucz) const{
-    return (std::abs(klucz)%rozmiar);
+int TablicaCuckoo::funkcjaMieszajaca1(int klucz) const {
+    return (std::abs(klucz) % rozmiar);
 }
-int TablicaCuckoo::funkcjaMieszajaca2(int klucz) const{
-    return ((std::abs(klucz)/rozmiar)%rozmiar);
+int TablicaCuckoo::funkcjaMieszajaca1(int klucz) const {
+    return ((std::abs(klucz)/rozmiar) % rozmiar);
 }
 
 void TablicaCuckoo::rehash(int nowyRozmiar) {
     int staryRozmiar = rozmiar;
-    Element* staraTablica1 = tablica1;
-    Element* staraTablica2 = tablica2;
+    ElementCuckoo* staraTablica1 = tablica1;
+    ElementCuckoo* staraTablica2 = tablica2;
 
     rozmiar = nowyRozmiar;
-    tablica1 = new Element[rozmiar];
-    tablica2 = new Element[rozmiar];
+    tablica1 = new ElementCuckoo[rozmiar];
+    tablica2 = new ElementCuckoo[rozmiar];
     licznik = 0;
 
     for (int i = 0; i < staryRozmiar; i++) {
@@ -74,6 +74,7 @@ void TablicaCuckoo::rehash(int nowyRozmiar) {
     delete[] staraTablica1;
     delete[] staraTablica2;
 }
+
 void TablicaCuckoo::zwiekszRozmiar() {
     if (licznik >= rozmiar) {
         int nowyRozmiar;
@@ -113,6 +114,7 @@ void TablicaCuckoo::insert(int klucz, int wartosc) {
 
     int obecnyKlucz = klucz;
     int obecnaWartosc = wartosc;
+    
     int max_prob = rozmiar * 2 + 10; 
 
     for (int i = 0; i < max_prob; i++) {
@@ -126,7 +128,6 @@ void TablicaCuckoo::insert(int klucz, int wartosc) {
             return;
         }
 
-        // Eksmisja z pierwszej tablicy
         int tempKlucz = tablica1[idx1].klucz;
         int tempWartosc = tablica1[idx1].wartosc;
 
@@ -155,7 +156,12 @@ void TablicaCuckoo::insert(int klucz, int wartosc) {
         obecnaWartosc = tempWartosc;
     }
 
-    int wymuszonyRozmiar = (rozmiar == 0) ? 1 : rozmiar * 2;
+    int wymuszonyRozmiar;
+    if (rozmiar == 0) {
+        wymuszonyRozmiar = 1;
+    } else {
+        wymuszonyRozmiar = rozmiar * 2;
+    }
     rehash(wymuszonyRozmiar);
     insert(obecnyKlucz, obecnaWartosc);
 }
