@@ -4,7 +4,7 @@
 TablicaOtwarta::TablicaOtwarta(){
     licznik = 0;
     rozmiar = 1;
-    dane = new Element[rozmiar];
+    dane = new ElementOtwarta[rozmiar];
 }
 TablicaOtwarta::~TablicaOtwarta(){
     delete[] dane;
@@ -13,7 +13,7 @@ TablicaOtwarta::~TablicaOtwarta(){
 TablicaOtwarta::TablicaOtwarta(const TablicaOtwarta& other){
     licznik = other.licznik;
     rozmiar = other.rozmiar;
-    dane = new Element[rozmiar];
+    dane = new ElementOtwarta[rozmiar];
     for(int i=0; i<rozmiar;i++){
         dane[i]=other.dane[i];
     }
@@ -21,8 +21,8 @@ TablicaOtwarta::TablicaOtwarta(const TablicaOtwarta& other){
 
 TablicaOtwarta& TablicaOtwarta::operator=(const TablicaOtwarta& other){
     if(this == &other)return *this;
-    Element* noweDane = new Element[other.rozmiar];
-    for(int i=0;i<other.rozmiar;i++){
+    ElementOtwarta* noweDane = new ElementOtwarta[other.rozmiar];
+    for(int i=0;i<other.licznik;i++){
         noweDane[i] = other.dane[i];
     }
     delete[] dane;
@@ -32,44 +32,30 @@ TablicaOtwarta& TablicaOtwarta::operator=(const TablicaOtwarta& other){
     return *this;
 }
 
-void TablicaOtwarta::zwiekszRozmiar() {
-    if (licznik >= rozmiar * 0.7) { 
-        int staryRozmiar = rozmiar;
-        Element* staraTablica = dane;
-        if (rozmiar == 0) {
-            rozmiar = 1;
-        } else {
-            rozmiar = rozmiar * 2;
+void TablicaOtwarta::zwiekszRozmiar(){
+    if(licznik >= rozmiar){
+        rozmiar *= 2;
+        ElementOtwarta* noweDane = new ElementOtwarta[rozmiar];
+        for(int i=0;i<licznik;i++){
+            noweDane[i] = dane[i];
         }
-        dane = new Element[rozmiar]; 
-        licznik = 0; 
-
-        for (int i = 0; i < staryRozmiar; i++) {
-            if (staraTablica[i].status == ZAJETA) { 
-                insert(staraTablica[i].klucz, staraTablica[i].wartosc);
-            }
-        }
-
-        delete[] staraTablica;
+        delete[] dane;
+        dane = noweDane;
     }
 }
 
 void TablicaOtwarta::zmniejszRozmiar(){
     int staryRozmiar = rozmiar;
-    while(licznik >= 0 && licznik <= rozmiar / 4 && rozmiar > 1){
+    while(licznik >= 0 && licznik <= rozmiar/4 && rozmiar >1){
         rozmiar /= 2;
     }
     if(rozmiar != staryRozmiar){
-        Element* staraTablica = dane;
-        dane = new Element[rozmiar];
-        licznik = 0;
-
-        for(int i = 0; i < staryRozmiar; i++){
-            if(staraTablica[i].status == ZAJETA){
-                insert(staraTablica[i].klucz, staraTablica[i].wartosc);
-            }
+        ElementOtwarta* noweDane = new ElementOtwarta[rozmiar];
+        for(int i=0;i<licznik;i++){
+            noweDane[i] = dane[i];
         }
-        delete[] staraTablica;
+    delete[] dane;
+    dane = noweDane;
     }
 }
 

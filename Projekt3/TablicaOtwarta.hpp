@@ -3,7 +3,7 @@
 
 enum StatusKomorki{WOLNA,ZAJETA};
 
-struct Element{
+struct ElementOtwarta {
     int klucz;
     int wartosc;
     StatusKomorki status = WOLNA;
@@ -11,7 +11,7 @@ struct Element{
 
 class TablicaOtwarta{
 private:
-    Element* dane;
+    ElementOtwarta* dane;
     int licznik;
     int rozmiar;
 
