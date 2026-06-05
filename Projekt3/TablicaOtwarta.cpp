@@ -22,7 +22,7 @@ TablicaOtwarta::TablicaOtwarta(const TablicaOtwarta& other){
 TablicaOtwarta& TablicaOtwarta::operator=(const TablicaOtwarta& other){
     if(this == &other)return *this;
     Element* noweDane = new Element[other.rozmiar];
-    for(int i=0;i<other.licznik;i++){
+    for(int i=0;i<other.rozmiar;i++){
         noweDane[i] = other.dane[i];
     }
     delete[] dane;
@@ -32,30 +32,44 @@ TablicaOtwarta& TablicaOtwarta::operator=(const TablicaOtwarta& other){
     return *this;
 }
 
-void TablicaOtwarta::zwiekszRozmiar(){
-    if(licznik >= rozmiar){
-        rozmiar *= 2;
-        Element* noweDane = new Element[rozmiar];
-        for(int i=0;i<licznik;i++){
-            noweDane[i] = dane[i];
+void TablicaOtwarta::zwiekszRozmiar() {
+    if (licznik >= rozmiar * 0.7) { 
+        int staryRozmiar = rozmiar;
+        Element* staraTablica = dane;
+        if (rozmiar == 0) {
+            rozmiar = 1;
+        } else {
+            rozmiar = rozmiar * 2;
         }
-        delete[] dane;
-        dane = noweDane;
+        dane = new Element[rozmiar]; 
+        licznik = 0; 
+
+        for (int i = 0; i < staryRozmiar; i++) {
+            if (staraTablica[i].status == ZAJETA) { 
+                insert(staraTablica[i].klucz, staraTablica[i].wartosc);
+            }
+        }
+
+        delete[] staraTablica;
     }
 }
 
 void TablicaOtwarta::zmniejszRozmiar(){
     int staryRozmiar = rozmiar;
-    while(licznik >= 0 && licznik <= rozmiar/4 && rozmiar >1){
+    while(licznik >= 0 && licznik <= rozmiar / 4 && rozmiar > 1){
         rozmiar /= 2;
     }
     if(rozmiar != staryRozmiar){
-        Element* noweDane = new Element[rozmiar];
-        for(int i=0;i<licznik;i++){
-            noweDane[i] = dane[i];
+        Element* staraTablica = dane;
+        dane = new Element[rozmiar];
+        licznik = 0;
+
+        for(int i = 0; i < staryRozmiar; i++){
+            if(staraTablica[i].status == ZAJETA){
+                insert(staraTablica[i].klucz, staraTablica[i].wartosc);
+            }
         }
-    delete[] dane;
-    dane = noweDane;
+        delete[] staraTablica;
     }
 }
 
