@@ -7,7 +7,7 @@ struct Element{
     int klucz;
     int wartosc;
     StatusKomorki status = WOLNA;
-}
+};
 
 class TablicaOtwarta{
 private:
@@ -25,5 +25,5 @@ public:
     TablicaOtwarta& operator=(const TablicaOtwarta& other);
     void insert(int klucz, int wartosc);
     void remove(int klucz);
-}
+};
 #endif
