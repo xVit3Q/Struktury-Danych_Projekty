@@ -33,34 +33,45 @@ TablicaOtwarta& TablicaOtwarta::operator=(const TablicaOtwarta& other){
 }
 
 void TablicaOtwarta::zwiekszRozmiar(){
-    if(licznik >= rozmiar){
+    if(licznik >= rozmiar * 0.7){
+        int staryRozmiar = rozmiar;
+        ElementOtwarta* stareDane = dane;
+
         rozmiar *= 2;
-        ElementOtwarta* noweDane = new ElementOtwarta[rozmiar];
-        for(int i=0;i<licznik;i++){
-            noweDane[i] = dane[i];
+        dane = new ElementOtwarta[rozmiar];
+        licznik = 0;
+
+        for(int i = 0; i < staryRozmiar; i++){
+            if(stareDane[i].status == ZAJETA){
+                insert(stareDane[i].klucz, stareDane[i].wartosc);
+            }
         }
-        delete[] dane;
-        dane = noweDane;
+        delete[] stareDane;
     }
 }
 
 void TablicaOtwarta::zmniejszRozmiar(){
     int staryRozmiar = rozmiar;
-    while(licznik >= 0 && licznik <= rozmiar/4 && rozmiar >1){
+    while(licznik >= 0 && licznik <= rozmiar/4 && rozmiar > 1){
         rozmiar /= 2;
     }
     if(rozmiar != staryRozmiar){
-        ElementOtwarta* noweDane = new ElementOtwarta[rozmiar];
-        for(int i=0;i<licznik;i++){
-            noweDane[i] = dane[i];
+        ElementOtwarta* stareDane = dane;
+        dane = new ElementOtwarta[rozmiar];
+        licznik = 0;
+
+        for(int i = 0; i < staryRozmiar; i++){
+            if(stareDane[i].status == ZAJETA){
+                insert(stareDane[i].klucz, stareDane[i].wartosc);
+            }
         }
-    delete[] dane;
-    dane = noweDane;
+        delete[] stareDane;
     }
 }
 
-int TablicaOtwarta::funkcjaMieszajaca(int klucz) const{
-    return (std::abs(klucz)%rozmiar);
+int TablicaOtwarta::funkcjaMieszajaca(int klucz) const {
+    unsigned int u_klucz = static_cast<unsigned int>(klucz);
+    return static_cast<int>(u_klucz % rozmiar);
 }
 
 void TablicaOtwarta::insert(int klucz, int wartosc){
