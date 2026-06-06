@@ -18,5 +18,8 @@ int losujPozycje() {
 }
 
 int losujWartosc() {
-    return std::uniform_int_distribution<int>(0, 10000)(getRng());
+    return std::uniform_int_distribution<int>(INT_MIN, INT_MAX)(getRng());
+}
+int losujKlucz() {
+    return std::uniform_int_distribution<int>(0, std::numeric_limits<uint32_t>::max())(getRng());
 }

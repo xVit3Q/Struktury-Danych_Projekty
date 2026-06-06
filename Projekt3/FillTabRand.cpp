@@ -5,8 +5,8 @@
 std::vector<int> generujLosoweDane(int n, unsigned int seed) {
     std::mt19937 rng(seed);                 
     // ZMIANA: Zakres losowania zależy teraz bezpośrednio od rozmiaru n
-    // Losujemy liczby od 0 do n, dzięki czemu dystrybucja wartości jest spójna
-    std::uniform_int_distribution<int> dist(0, 10000);
+    // Losujemy liczby w zakresie int32 od INT_MIN do INT_MAX, aby zapewnić pełną różnorodność danych
+      std::uniform_int_distribution<int> dist(INT_MIN, INT_MAX);
 
     std::vector<int> dane;
     dane.reserve(n);
