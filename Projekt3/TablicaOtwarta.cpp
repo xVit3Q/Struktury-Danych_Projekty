@@ -103,3 +103,6 @@ void TablicaOtwarta::remove(int klucz){
     }
     return;
 }
+int TablicaOtwarta::returnSize() const{
+    return licznik;
+}

@@ -50,7 +50,8 @@ int showOperationsMenu() {
     cout << "\n=== OPERACJE NA TABLICY MIESZAJACEJ ===\n";
     cout << "1. insert(klucz, wartosc)\n";
     cout << "2. remove(klucz)\n";
-    cout << "3. Powrot\n";
+    cout << "3. zwroc rozmiar struktury\n";
+    cout << "4. Powrot\n";
     cout << "Wybor: ";
 
     int op;

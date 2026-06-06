@@ -46,7 +46,11 @@ static void menuCuckoo(TablicaCuckoo& tc) {
                     [&]() { tc.remove(klucz); });
                 break;
 
-            case 3: return;
+            case 3:
+                cout << "Rozmiar struktury: " << tc.returnSize() << endl;
+                break;
+
+            case 4: return;
             default: cout << "Nieprawidlowa opcja\n";
         }
     }
@@ -73,8 +77,11 @@ static void menuOtwarta(TablicaOtwarta& to) {
                 zmierzIWyswietl("TablicaOtwarta::remove",
                     [&]() { to.remove(klucz); });
                 break;
+            case 3:
+                cout << "Rozmiar struktury: " << to.returnSize() << endl;
+                break;
 
-            case 3: return;
+            case 4: return;
             default: cout << "Nieprawidlowa opcja\n";
         }
     }
@@ -101,8 +108,10 @@ static void menuAVL(DrzewoAVL& avl) {
                 zmierzIWyswietl("DrzewoAVL::remove",
                     [&]() { avl.remove(klucz); });
                 break;
-
-            case 3: return;
+              case 3:
+                cout << "Rozmiar struktury: " << avl.returnSize() << endl;
+                break;
+            case 4: return;
             default: cout << "Nieprawidlowa opcja\n";
         }
     }
@@ -118,7 +127,7 @@ int main() {
 
         // 1. Generowanie danych
         if (count > 0) {
-            vector<int> dane = generujLosoweDane(count, 12345);
+            vector<int> dane = generujLosoweDane(count, generujSeedy(1)[0]);
             zapiszDoPliku(dane);
             cout << "Wygenerowano " << count << " elementow -> dane.txt\n";
             continue;
@@ -137,17 +146,19 @@ int main() {
                 TablicaCuckoo tc;
                 for (int i = 0; i < (int)dane.size(); i++)
                     tc.insert(dane[i], i);
+                cout << "Wypelniono TabliceCuckoo (" << tc.returnSize() << " elem.)\n";
                 menuCuckoo(tc);
             } else if (type == TypOtwarta) {
                 TablicaOtwarta to;
                 for (int i = 0; i < (int)dane.size(); i++)
                     to.insert(dane[i], i);
+                cout << "Wypelniono TabliceOtwarta (" << to.returnSize() << " elem.)\n";
                 menuOtwarta(to);
             } else {
                 DrzewoAVL avl;
                 for (int i = 0; i < (int)dane.size(); i++)
                     avl.insert(dane[i], i);
-                cout << "Wypelniono DrzewoAVL (" << avl.rozmiar() << " elem.)\n";
+                cout << "Wypelniono DrzewoAVL (" << avl.returnSize() << " elem.)\n";
                 menuAVL(avl);
             }
             continue;

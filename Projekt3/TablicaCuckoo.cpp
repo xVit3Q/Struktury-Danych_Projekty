@@ -188,3 +188,6 @@ void TablicaCuckoo::remove(int klucz) {
         return;
     }
 }
+int TablicaCuckoo::returnSize() const {
+    return licznik;
+}

@@ -30,6 +30,7 @@ public:
 
     void insert(int klucz, int wartosc); 
     void remove(int klucz);
+    int returnSize() const;
 };
 
 #endif

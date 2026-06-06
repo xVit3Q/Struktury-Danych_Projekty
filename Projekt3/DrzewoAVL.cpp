@@ -207,7 +207,7 @@ void DrzewoAVL::remove(int klucz) {
     if(usunieto) licznik--;
 }
 
-int DrzewoAVL::rozmiar() const {
+int DrzewoAVL::returnSize() const {
     return licznik;
 }
 

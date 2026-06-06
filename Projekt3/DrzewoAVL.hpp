@@ -38,7 +38,7 @@ class DrzewoAVL {
         void insert(int klucz, int wartosc);
         void remove(int klucz);
 
-        int rozmiar() const;
+        int returnSize() const;
         bool pusty() const;
 
 
