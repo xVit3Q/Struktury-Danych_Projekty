@@ -1,5 +1,4 @@
 #include "TablicaOtwarta.hpp"
-#include <cmath>
 
 TablicaOtwarta::TablicaOtwarta(){
     licznik = 0;
@@ -33,39 +32,46 @@ TablicaOtwarta& TablicaOtwarta::operator=(const TablicaOtwarta& other){
 }
 
 void TablicaOtwarta::zwiekszRozmiar(){
-    if(licznik >= rozmiar * 0.7){
+    if(licznik >= rozmiar * 0.7){ 
+        int nowyRozmiar = rozmiar * 2;
+        ElementOtwarta* noweDane = new ElementOtwarta[nowyRozmiar];
         int staryRozmiar = rozmiar;
-        ElementOtwarta* stareDane = dane;
-
-        rozmiar *= 2;
-        dane = new ElementOtwarta[rozmiar];
-        licznik = 0;
-
+        rozmiar = nowyRozmiar;
+ 
         for(int i = 0; i < staryRozmiar; i++){
-            if(stareDane[i].status == ZAJETA){
-                insert(stareDane[i].klucz, stareDane[i].wartosc);
+            if(dane[i].status == ZAJETA){
+                int indeks = funkcjaMieszajaca(dane[i].klucz);
+                while(noweDane[indeks].status == ZAJETA){
+                    indeks = (indeks + 1) % rozmiar;
+                }
+                noweDane[indeks] = dane[i];
             }
         }
-        delete[] stareDane;
+        delete[] dane;
+        dane = noweDane;
     }
 }
-
+ 
 void TablicaOtwarta::zmniejszRozmiar(){
     int staryRozmiar = rozmiar;
-    while(licznik <= rozmiar/4 && rozmiar > 1){
+    while(licznik <= rozmiar / 4 && rozmiar > 1){
         rozmiar /= 2;
     }
     if(rozmiar != staryRozmiar){
-        ElementOtwarta* stareDane = dane;
-        dane = new ElementOtwarta[rozmiar];
-        licznik = 0;
-
+        ElementOtwarta* noweDane = new ElementOtwarta[rozmiar];
+ 
+        // POPRAWKA: rehash zamiast kopiowania bajtów
         for(int i = 0; i < staryRozmiar; i++){
-            if(stareDane[i].status == ZAJETA){
-                insert(stareDane[i].klucz, stareDane[i].wartosc);
+            if(dane[i].status == ZAJETA){
+                int indeks = funkcjaMieszajaca(dane[i].klucz);
+                while(noweDane[indeks].status == ZAJETA){
+                    indeks = (indeks + 1) % rozmiar;
+                }
+                noweDane[indeks] = dane[i];
             }
         }
-        delete[] stareDane;
+        delete[] dane;
+        dane = noweDane;
     }
 }
 
@@ -83,7 +89,7 @@ void TablicaOtwarta::insert(int klucz, int wartosc){
             dane[indeks].wartosc = wartosc;
             return;
         }
-        indeks = (indeks+1)%rozmiar;
+        indeks = (indeks + 1) % rozmiar;
         if(indeks == startowyIndeks){
             return;
         }
@@ -93,26 +99,40 @@ void TablicaOtwarta::insert(int klucz, int wartosc){
     dane[indeks].status = ZAJETA;
     licznik++;
 }
-
+ 
 void TablicaOtwarta::remove(int klucz){
     if(licznik == 0){
         return;
     }
     int indeks = funkcjaMieszajaca(klucz);
     int startowyIndeks = indeks;
+ 
     while(dane[indeks].status == ZAJETA){
         if(dane[indeks].klucz == klucz){
             dane[indeks].status = WOLNA;
             licznik--;
+            int kolejny = (indeks + 1) % rozmiar;
+            while(dane[kolejny].status == ZAJETA){
+                ElementOtwarta doWstawienia = dane[kolejny];
+                dane[kolejny].status = WOLNA;
+                licznik--;
+                int nowyIndeks = funkcjaMieszajaca(doWstawienia.klucz);
+                while(dane[nowyIndeks].status == ZAJETA){
+                    nowyIndeks = (nowyIndeks + 1) % rozmiar;
+                }
+                dane[nowyIndeks] = doWstawienia;
+                licznik++;
+ 
+                kolejny = (kolejny + 1) % rozmiar;
+            }
             zmniejszRozmiar();
             return;
         }
-        indeks = (indeks+1)%rozmiar;
+        indeks = (indeks + 1) % rozmiar;
         if(indeks == startowyIndeks){
             break;
         }
     }
-    return;
 }
 int TablicaOtwarta::returnSize() const{
     return licznik;
