@@ -22,7 +22,7 @@ TablicaOtwarta::TablicaOtwarta(const TablicaOtwarta& other){
 TablicaOtwarta& TablicaOtwarta::operator=(const TablicaOtwarta& other){
     if(this == &other)return *this;
     ElementOtwarta* noweDane = new ElementOtwarta[other.rozmiar];
-    for(int i=0;i<other.licznik;i++){
+    for(int i=0;i<other.rozmiar;i++){
         noweDane[i] = other.dane[i];
     }
     delete[] dane;
@@ -52,7 +52,7 @@ void TablicaOtwarta::zwiekszRozmiar(){
 
 void TablicaOtwarta::zmniejszRozmiar(){
     int staryRozmiar = rozmiar;
-    while(licznik >= 0 && licznik <= rozmiar/4 && rozmiar > 1){
+    while(licznik <= rozmiar/4 && rozmiar > 1){
         rozmiar /= 2;
     }
     if(rozmiar != staryRozmiar){
