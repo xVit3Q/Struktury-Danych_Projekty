@@ -53,7 +53,7 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
 
                 long long t = zmierzCzas([&]() {
                     for (int i = 0; i < BLOK; i++)
-                        kopie[i].insert(losujWartosc(), losujWartosc());
+                        kopie[i].insert(losujWartosc(), losujKlucz());
                 });
                 wyniki.TablicaCuckoo.insert += t;
 
@@ -89,7 +89,7 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
 
                 long long t = zmierzCzas([&]() {
                     for (int i = 0; i < BLOK; i++)
-                        kopie[i].insert(losujWartosc(), losujWartosc());
+                        kopie[i].insert(losujWartosc(), losujKlucz());
                 });
                 wyniki.TablicaOtwarta.insert += t;
 
@@ -125,7 +125,7 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
 
                 long long t = zmierzCzas([&]() {
                     for (int i = 0; i < BLOK; i++)
-                        kopie[i].insert(losujWartosc(), losujWartosc());
+                        kopie[i].insert(losujWartosc(), losujKlucz());
                 });
                 wyniki.DrzewoAVL.insert += t;
 
@@ -149,7 +149,7 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
         }
         cout << "\n";
     }
-
+    //Srednie czasy w nanosekundach, dzielone przez n = seedy*powtorzenia, oraz przez BLOK, bo tyle operacji wykonujemy w kazdym pomiarze
     long long n = (long long)ileSeedow * powtorzenia;
 
     zapiszCsv(out, "TablicaCuckoo",  rozmiar, "insert", (double)wyniki.TablicaCuckoo.insert  / (n * BLOK));

@@ -91,11 +91,16 @@ ElementAVL* DrzewoAVL::zrownowaz(ElementAVL* e) {
 
 //Minimum w poddrzewie (pomoc w usuwaniu)
 
-ElementAVL* DrzewoAVL::minimum(ElementAVL* e) const {
-    while(e->lewy != nullptr) {
-        e = e->lewy;
+ElementAVL* DrzewoAVL::removeMinimum(ElementAVL* e, ElementAVL*& minNode) {
+    //jesli nie ma lewego dziecka, to e jest minimum
+    if(e->lewy == nullptr) {
+        minNode = e;
+        return e->prawy; // zwraca prawe dziecko, które zastąpi usuwany węzeł
     }
-    return e;
+    //idzemy dalej w lewo
+    e->lewy = removeMinimum(e->lewy, minNode);
+    //wracamy do rekurencji, zrównoważamy drzewo
+    return zrownowaz(e);
 }
 
 //Rekurecyjne metody insert, remove, find
@@ -148,13 +153,15 @@ ElementAVL* DrzewoAVL::remove(ElementAVL* e, int klucz, bool& usunieto) {
             delete e;
             return dziecko;
         }
-
-        ElementAVL* nastepny = minimum(e->prawy);
+        //przypadek 2 dzieci:
+        ElementAVL* nastepny = nullptr;
+        //wyciagniecie min z prawego poddrzewa
+        e->prawy = removeMinimum(e->prawy, nastepny);
+        //podmiana klucza i wartosci usuwanego wezla na klucz i wartosc nastepnego
         e->klucz = nastepny->klucz;
         e->wartosc = nastepny->wartosc;
-
-        bool pomocniczy = false;
-        e->prawy = remove(e->prawy, nastepny->klucz, pomocniczy);
+        //wzezeł nastepny został usunięty z prawego poddrzewa, więc zwalniamy jego pamięć
+        delete nastepny;
     }
     return zrownowaz(e);
 }

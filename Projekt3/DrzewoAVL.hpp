@@ -21,7 +21,7 @@ class DrzewoAVL {
         ElementAVL* rotacjaLewo(ElementAVL* x);
         ElementAVL* rotacjaPrawo(ElementAVL* y);
         ElementAVL* zrownowaz(ElementAVL* e);
-        ElementAVL* minimum(ElementAVL* e) const;
+        ElementAVL* removeMinimum(ElementAVL* e, ElementAVL*& minNode);
 
         ElementAVL* insert(ElementAVL* e, int klucz, int wartosc, bool& wstawiono);
         ElementAVL* remove(ElementAVL* e, int klucz, bool& usunieto);
