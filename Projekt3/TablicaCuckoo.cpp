@@ -95,7 +95,7 @@ void TablicaCuckoo::zwiekszRozmiar() {
 
 void TablicaCuckoo::zmniejszRozmiar() {
     int staryRozmiar = rozmiar;
-    while (licznik > 0 && licznik <= rozmiar / 4 && rozmiar > 1) {
+    while (licznik <= rozmiar / 4 && rozmiar > 1) {
         rozmiar /= 2;
     }
 
