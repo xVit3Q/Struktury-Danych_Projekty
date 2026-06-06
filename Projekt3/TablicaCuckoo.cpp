@@ -47,11 +47,14 @@ TablicaCuckoo& TablicaCuckoo::operator=(const TablicaCuckoo& other){
 }
 
 int TablicaCuckoo::funkcjaMieszajaca1(int klucz) const {
-    return (std::abs(klucz) % rozmiar);
+    unsigned int u_klucz = static_cast<unsigned int>(klucz);
+    return static_cast<int>(u_klucz % rozmiar);
 }
+
 int TablicaCuckoo::funkcjaMieszajaca2(int klucz) const {
-    double A = 1.618033; // Przybliżenie złotej proporcji (Haszowanie Fibonacciego)
-    double iloczyn = std::abs(klucz) * A;
+    double A = 1.618033; //złota proporcja (haszowanie Fibonacciego)
+    unsigned int u_klucz = static_cast<unsigned int>(klucz);
+    double iloczyn = u_klucz * A;
     double czesc_ulamkowa = iloczyn - static_cast<long long>(iloczyn);
     return static_cast<int>(czesc_ulamkowa * rozmiar);
 }
