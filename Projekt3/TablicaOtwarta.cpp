@@ -60,7 +60,6 @@ void TablicaOtwarta::zmniejszRozmiar(){
     if(rozmiar != staryRozmiar){
         ElementOtwarta* noweDane = new ElementOtwarta[rozmiar];
  
-        // POPRAWKA: rehash zamiast kopiowania bajtów
         for(int i = 0; i < staryRozmiar; i++){
             if(dane[i].status == ZAJETA){
                 int indeks = funkcjaMieszajaca(dane[i].klucz);
@@ -111,18 +110,22 @@ void TablicaOtwarta::remove(int klucz){
         if(dane[indeks].klucz == klucz){
             dane[indeks].status = WOLNA;
             licznik--;
+            int pustaKomorka = indeks;
             int kolejny = (indeks + 1) % rozmiar;
             while(dane[kolejny].status == ZAJETA){
-                ElementOtwarta doWstawienia = dane[kolejny];
-                dane[kolejny].status = WOLNA;
-                licznik--;
-                int nowyIndeks = funkcjaMieszajaca(doWstawienia.klucz);
-                while(dane[nowyIndeks].status == ZAJETA){
-                    nowyIndeks = (nowyIndeks + 1) % rozmiar;
+                int bazowy = funkcjaMieszajaca(dane[kolejny].klucz);
+                bool miedzy = false;
+                if (pustaKomorka < kolejny) {
+                    miedzy = (bazowy > pustaKomorka && bazowy <= kolejny);
+                } else {
+                    miedzy = (bazowy > pustaKomorka || bazowy <= kolejny);
                 }
-                dane[nowyIndeks] = doWstawienia;
-                licznik++;
- 
+                if (!miedzy) {
+                    dane[pustaKomorka] = dane[kolejny];
+                    dane[kolejny].status = WOLNA;
+                    pustaKomorka = kolejny;
+                }
+                
                 kolejny = (kolejny + 1) % rozmiar;
             }
             zmniejszRozmiar();
