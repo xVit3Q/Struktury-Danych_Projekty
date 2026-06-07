@@ -53,7 +53,7 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
 
                 long long t = zmierzCzas([&]() {
                     for (int i = 0; i < BLOK; i++)
-                        kopie[i].insert(losujWartosc(), losujKlucz());
+                        kopie[i].insert(losujKlucz(), losujWartosc());
                 });
                 wyniki.TablicaCuckoo.insert += t;
 
@@ -89,7 +89,7 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
 
                 long long t = zmierzCzas([&]() {
                     for (int i = 0; i < BLOK; i++)
-                        kopie[i].insert(losujWartosc(), losujKlucz());
+                        kopie[i].insert(losujKlucz(), losujWartosc());
                 });
                 wyniki.TablicaOtwarta.insert += t;
 
@@ -125,7 +125,7 @@ static void testujRozmiarWewn(int rozmiar, int powtorzenia, int ileSeedow,
 
                 long long t = zmierzCzas([&]() {
                     for (int i = 0; i < BLOK; i++)
-                        kopie[i].insert(losujWartosc(), losujKlucz());
+                        kopie[i].insert(losujKlucz(), losujWartosc());
                 });
                 wyniki.DrzewoAVL.insert += t;
 
