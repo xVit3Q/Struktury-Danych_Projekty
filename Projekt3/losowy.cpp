@@ -23,5 +23,5 @@ int losujWartosc() {
 }
 
 int losujKlucz() {
-    return std::uniform_int_distribution<int>(0, std::numeric_limits<int>::max())(getRng());
+    return std::uniform_int_distribution<int>(std::numeric_limits<int>::min(), std::numeric_limits<int>::max())(getRng());
 }
